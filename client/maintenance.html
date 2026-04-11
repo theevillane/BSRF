@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>BSRF — Maintenance Records</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+    </style>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">
+        <i class="fas fa-bicycle"></i>
+        <span>BSRF</span>
+        <small>Hampshire</small>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="terminals.html">Terminals</a></li>
+        <li><a href="fleet.html">Fleet</a></li>
+        <li><a href="members.html">Members</a></li>
+        <li><a href="rentals.html">Rentals</a></li>
+        <li><a href="maintenance.html">Maintenance</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero" style="background:linear-gradient(135deg, rgba(27,42,74,0.9) 0%, rgba(13,115,119,0.85) 100%), url('https://images.unsplash.com/photo-1530083619377-03de945f3042?w=1400&q=80') center center / cover no-repeat;">
+      <h1>Fleet Maintenance</h1>
+      <p>Track service history, schedule upcoming work, and manage contractor assignments.</p>
+    </section>
+
+    <div class="container">
+      <div id="overdueBanner"></div>
+
+      <div class="grid cards-4" style="margin-bottom:12px">
+        <div class="stat-card" style="border-left-color:var(--teal)"><div style="font-size:32px;font-weight:700" id="cTotal">0</div><div style="color:var(--grey-500)">Total Records</div></div>
+        <div class="stat-card" style="border-left-color:var(--red)"><div style="font-size:32px;font-weight:700" id="cOverdue">0</div><div style="color:var(--grey-500)">Overdue Service</div></div>
+        <div class="stat-card" style="border-left-color:var(--amber)"><div style="font-size:32px;font-weight:700" id="cSoon">0</div><div style="color:var(--grey-500)">Due Within 30 Days</div></div>
+        <div class="stat-card" style="border-left-color:var(--green)"><div style="font-size:32px;font-weight:700" id="cScheduled">0</div><div style="color:var(--grey-500)">Scheduled</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <select id="filterAssetType">
+          <option value="">All Asset Types</option>
+          <option value="bicycle">Bicycle</option>
+          <option value="scooter">Scooter</option>
+        </select>
+        <select id="filterUrgency">
+          <option value="">All Urgency</option>
+          <option value="overdue">Overdue</option>
+          <option value="due_soon">Due Soon</option>
+          <option value="scheduled">Scheduled</option>
+        </select>
+        <select id="filterCompany"><option value="">All Service Companies</option></select>
+        <input id="searchInput" placeholder="Search asset/company/description" />
+        <button class="btn btn-primary" style="margin-left:auto" onclick="openAddModal()"><i class="fas fa-plus"></i> Log Maintenance</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Record ID</th>
+              <th>Asset</th>
+              <th>Asset Type</th>
+              <th>Service Date</th>
+              <th>Description</th>
+              <th style="text-align:right">Cost</th>
+              <th>Service Company</th>
+              <th>Next Service</th>
+              <th>Urgency</th>
+              <th>Days Until</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="maintenanceModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="modalTitle">Log Maintenance</h2>
+          <button class="btn btn-secondary btn-sm" onclick="closeMaintenanceModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Asset Type</label>
+            <div style="display:flex;gap:12px">
+              <label style="text-transform:none;letter-spacing:0"><input type="radio" name="assetType" value="bicycle"> Bicycle</label>
+              <label style="text-transform:none;letter-spacing:0"><input type="radio" name="assetType" value="scooter"> E-Scooter</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Asset</label>
+            <select id="maintenanceAssetId"></select>
+          </div>
+          <div class="form-group">
+            <label>Service Company</label>
+            <select id="maintenanceCompanyId"></select>
+          </div>
+          <div class="form-group">
+            <label>Service Date</label>
+            <input type="date" id="maintenanceServiceDate" />
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="maintenanceDescription" rows="4" placeholder="Describe work performed…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Cost (£)</label>
+            <input type="number" id="maintenanceCost" min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Next Service Date</label>
+            <input type="date" id="maintenanceNextDate" />
+            <small id="nextHelper" style="color:var(--grey-500);display:block;margin-top:6px"></small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeMaintenanceModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveMaintenance()"><i class="fas fa-save"></i> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>© 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer>
+    <div id="toast-container"></div>
+
+    <script>
+      const API = 'http://localhost:3000/api';
+      let maintenanceData = [];
+      let companies = [];
+      let bicycles = [];
+      let scooters = [];
+      let editingRecord = null;
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
+      async function apiCall(url, options = {}) {
+        const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+        const data = await response.json();
+        if (!response.ok) { showToast(data.error || 'Request failed', 'error'); throw new Error(data.error || 'Request failed'); }
+        return data;
+      }
+
+      function ukDate(d) {
+        if (!d) return '-';
+        const dt = new Date(d);
+        return dt.toLocaleDateString('en-GB');
+      }
+
+      function updateCards() {
+        const total = maintenanceData.length;
+        const overdue = maintenanceData.filter(r => r.service_urgency === 'overdue').length;
+        const soon = maintenanceData.filter(r => r.service_urgency === 'due_soon').length;
+        const scheduled = maintenanceData.filter(r => r.service_urgency === 'scheduled').length;
+        cTotal.textContent = total;
+        cOverdue.textContent = overdue;
+        cSoon.textContent = soon;
+        cScheduled.textContent = scheduled;
+
+        overdueBanner.innerHTML = '';
+        if (overdue > 0) {
+          overdueBanner.innerHTML = `<div class="alert-banner" style="background:#FEE2E2;border-left:4px solid var(--red);padding:14px 20px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+            <i class="fas fa-exclamation-triangle" style="color:var(--red);font-size:20px"></i>
+            <div><strong style="color:#991B1B">${overdue} asset(s) have overdue service.</strong>
+              <span style="color:#7F1D1D;margin-left:8px">Contact the assigned service company immediately.</span>
+            </div>
+          </div>`;
+        }
+      }
+
+      function applyFilters() {
+        const t = filterAssetType.value;
+        const u = filterUrgency.value;
+        const c = filterCompany.value;
+        const q = searchInput.value.trim().toLowerCase();
+        return maintenanceData.filter(r => {
+          if (t && r.asset_type !== t) return false;
+          if (u && r.service_urgency !== u) return false;
+          if (c && String(r.company_id) !== c) return false;
+          if (q) {
+            const hay = `${r.asset_desc || ''} ${r.company_name || ''} ${r.description || ''}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderTable() {
+        updateCards();
+        const data = applyFilters();
+        rows.innerHTML = '';
+        data.forEach(r => {
+          const tr = document.createElement('tr');
+          if (r.service_urgency === 'overdue') tr.style.borderLeft = '4px solid var(--red)';
+          if (r.service_urgency === 'due_soon') tr.style.borderLeft = '4px solid var(--amber)';
+          const cost = r.cost == null ? '-' : `£${Number(r.cost).toFixed(2)}`;
+          const desc = (r.description || '').length > 60 ? `${r.description.slice(0,60)}…` : (r.description || '');
+          const urgencyBadge = r.service_urgency === 'overdue' ? 'badge-overdue' : r.service_urgency === 'due_soon' ? 'badge-pending' : 'badge-available';
+          const days = r.days_until_service == null ? '-' : r.days_until_service;
+          tr.innerHTML = `
+            <td><code>${r.record_id}</code></td>
+            <td><b>${r.asset_desc || '-'}</b> <span class="badge badge-active">${r.asset_type === 'bicycle' ? '🚲' : '⚡'}</span></td>
+            <td><span class="badge badge-active">${r.asset_type}</span></td>
+            <td>${ukDate(r.service_date)}</td>
+            <td>${desc}</td>
+            <td style="text-align:right">${cost}</td>
+            <td title="${r.company_phone || ''}">${r.company_name}</td>
+            <td>${ukDate(r.next_service_date)}</td>
+            <td>${r.service_urgency ? `<span class="badge ${urgencyBadge}">${r.service_urgency}</span>` : '-'}</td>
+            <td style="${typeof r.days_until_service==='number' && r.days_until_service<0 ? 'color:var(--red);font-weight:700' : (typeof r.days_until_service==='number' && r.days_until_service<=30 ? 'color:var(--amber);font-weight:700' : '')}">${days}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm">Edit</button>
+              <button class="btn btn-danger btn-sm">Delete</button>
+            </td>
+          `;
+          const detail = document.createElement('tr');
+          detail.style.display = 'none';
+          detail.innerHTML = `<td colspan="11">
+            <div class="card">
+              <h3 style="margin-top:0">Full Description</h3>
+              <p style="color:var(--grey-500)">${r.description || ''}</p>
+              <div style="padding:12px;border:1px dashed var(--grey-200);border-radius:12px;color:var(--grey-500);margin-bottom:12px">
+                Attach service photos (future feature)
+              </div>
+              <button class="btn btn-primary" type="button">Mark as Complete / Return to Service</button>
+            </div>
+          </td>`;
+          tr.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            detail.style.display = detail.style.display === 'none' ? 'table-row' : 'none';
+          });
+          const [editBtn, delBtn] = tr.querySelectorAll('button');
+          editBtn.addEventListener('click', () => openEditModal(r.record_id));
+          delBtn.addEventListener('click', () => deleteRecord(r.record_id));
+          detail.querySelector('button').addEventListener('click', async () => {
+            try {
+              if (r.bicycle_id) {
+                await apiCall(`${API}/bicycles/${r.bicycle_id}`, { method: 'PUT', body: JSON.stringify({ status: 'available' }) });
+              } else if (r.scooter_id) {
+                await apiCall(`${API}/scooters/${r.scooter_id}`, { method: 'PUT', body: JSON.stringify({ status: 'available' }) });
+              }
+              showToast('Asset returned to service as available');
+              await loadAll();
+            } catch (e) {}
+          });
+          rows.appendChild(tr);
+          rows.appendChild(detail);
+        });
+      }
+
+      async function loadAll() {
+        [maintenanceData, companies, bicycles, scooters] = await Promise.all([
+          apiCall(`${API}/maintenance`),
+          apiCall(`${API}/service-companies`),
+          apiCall(`${API}/bicycles`),
+          apiCall(`${API}/scooters`)
+        ]);
+        filterCompany.innerHTML = `<option value="">All Service Companies</option>` + companies.map(c => `<option value="${c.company_id}">${c.company_name}</option>`).join('');
+        maintenanceCompanyId.innerHTML = companies.map(c => `<option value="${c.company_id}">${c.company_name}</option>`).join('');
+        renderTable();
+      }
+
+      function populateAssetSelect() {
+        const type = document.querySelector('input[name="assetType"]:checked')?.value;
+        if (type === 'bicycle') {
+          maintenanceAssetId.innerHTML = `<option value="">— Select Bicycle —</option>` + bicycles.map(b => `<option value="${b.bicycle_id}">${b.make} ${b.model} (ID: ${b.bicycle_id}) — ${b.city}</option>`).join('');
+        } else if (type === 'scooter') {
+          maintenanceAssetId.innerHTML = `<option value="">— Select E-Scooter —</option>` + scooters.map(s => `<option value="${s.scooter_id}">${s.colour} ${s.model} (ID: ${s.scooter_id}) — ${s.city}</option>`).join('');
+        } else {
+          maintenanceAssetId.innerHTML = `<option value="">— Select Asset Type First —</option>`;
+        }
+      }
+
+      function openAddModal() {
+        editingRecord = null;
+        modalTitle.textContent = 'Log Maintenance';
+        maintenanceDescription.value = '';
+        maintenanceCost.value = '';
+        maintenanceNextDate.value = '';
+        maintenanceServiceDate.value = '';
+        document.querySelectorAll('input[name="assetType"]').forEach(r => r.checked = false);
+        populateAssetSelect();
+        maintenanceModal.classList.add('open');
+      }
+
+      async function openEditModal(id) {
+        editingRecord = id;
+        modalTitle.textContent = 'Edit Maintenance Record';
+        const r = await apiCall(`${API}/maintenance/${id}`);
+        maintenanceCompanyId.value = r.company_id;
+        maintenanceServiceDate.value = String(r.service_date).slice(0,10);
+        maintenanceDescription.value = r.description || '';
+        maintenanceCost.value = r.cost || '';
+        maintenanceNextDate.value = r.next_service_date ? String(r.next_service_date).slice(0,10) : '';
+        const type = r.asset_type;
+        document.querySelector(`input[name="assetType"][value="${type}"]`).checked = true;
+        populateAssetSelect();
+        maintenanceAssetId.value = type === 'bicycle' ? r.bicycle_id : r.scooter_id;
+        maintenanceModal.classList.add('open');
+      }
+
+      function closeMaintenanceModal() {
+        maintenanceModal.classList.remove('open');
+        nextHelper.textContent = '';
+      }
+
+      async function saveMaintenance() {
+        const assetType = document.querySelector('input[name="assetType"]:checked')?.value;
+        const assetId = maintenanceAssetId.value;
+        const companyId = maintenanceCompanyId.value;
+        const serviceDate = maintenanceServiceDate.value;
+        const description = maintenanceDescription.value.trim();
+        const cost = maintenanceCost.value;
+        const nextDate = maintenanceNextDate.value;
+
+        if (!assetType) return showToast('Select bicycle or scooter.', 'error');
+        if (!assetId) return showToast('Select a specific asset.', 'error');
+        if (!companyId) return showToast('Select a service company.', 'error');
+        if (!serviceDate) return showToast('Service date is required.', 'error');
+        if (!description) return showToast('Description is required.', 'error');
+
+        const body = {
+          company_id: parseInt(companyId, 10),
+          bicycle_id: assetType === 'bicycle' ? parseInt(assetId, 10) : null,
+          scooter_id: assetType === 'scooter' ? parseInt(assetId, 10) : null,
+          service_date: serviceDate,
+          description,
+          cost: cost ? parseFloat(cost) : null,
+          next_service_date: nextDate || null
+        };
+
+        try {
+          if (editingRecord) {
+            await apiCall(`${API}/maintenance/${editingRecord}`, { method: 'PUT', body: JSON.stringify(body) });
+            showToast('Maintenance record updated.');
+          } else {
+            await apiCall(`${API}/maintenance`, { method: 'POST', body: JSON.stringify(body) });
+            showToast('Maintenance record logged. Asset status updated to Maintenance.');
+          }
+          closeMaintenanceModal();
+          await loadAll();
+        } catch (e) {}
+      }
+
+      async function deleteRecord(id) {
+        if (!confirm('Delete maintenance record?')) return;
+        try {
+          await apiCall(`${API}/maintenance/${id}`, { method: 'DELETE' });
+          showToast('Maintenance record deleted.');
+          await loadAll();
+        } catch (e) {}
+      }
+
+      maintenanceNextDate.addEventListener('change', () => {
+        if (!maintenanceNextDate.value) { nextHelper.textContent = ''; return; }
+        const today = new Date(); today.setHours(0,0,0,0);
+        const nd = new Date(maintenanceNextDate.value); nd.setHours(0,0,0,0);
+        const days = Math.round((nd - today) / (1000*60*60*24));
+        nextHelper.textContent = days > 0 ? `Next service in ${days} days` : '';
+      });
+
+      document.querySelectorAll('input[name="assetType"]').forEach(r => r.addEventListener('change', populateAssetSelect));
+      [filterAssetType, filterUrgency, filterCompany, searchInput].forEach(el => el.addEventListener('input', renderTable));
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadAll();
+        document.querySelectorAll('.nav-links a').forEach(a => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+      });
+    </script>
+  </body>
+</html>
+

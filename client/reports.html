@@ -1,0 +1,78 @@
+<!doctype html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0'><title>Reports</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');</style><link rel='stylesheet' href='css/style.css'></head><body>
+<nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li><a href='terminals.html'>Terminals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='members.html'>Members</a></li><li><a href='rentals.html'>Rentals</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='sponsors.html'>Sponsors</a></li><li><a href='reports.html'>Reports</a></li><li><a href='about.html'>About</a></li><li><a href='contact.html'>Contact</a></li></ul></nav>
+<section class='hero'><h1>Business Intelligence Reports</h1></section><div class='container'>
+<h2>Revenue by City (Grouped Bars)</h2>
+<div id='barChart'></div>
+<div class='table-wrapper'><table class='data-table'><thead><tr><th>Month</th><th>City</th><th>Asset Type</th><th>Total Rentals</th><th>Gross Revenue</th><th>Avg Cost</th><th>Avg Duration</th></tr></thead><tbody id='revenue'></tbody></table></div>
+<h2>Top 10 Members</h2><div class='table-wrapper'><table class='data-table'><thead><tr><th>Rank</th><th>Member Name</th><th>Type</th><th>City</th><th>Total Rentals</th><th>Total Spent</th><th>Last Rental</th><th>Overdue</th></tr></thead><tbody id='topMembers'></tbody></table></div>
+<h2>Maintenance Due</h2><div class='table-wrapper'><table class='data-table'><thead><tr><th>Asset Type</th><th>Description</th><th>Terminal</th><th>City</th><th>Days Until Service</th><th>Service Company</th><th>Phone</th></tr></thead><tbody id='maintenance'></tbody></table></div>
+<h2>Terminal Utilisation</h2><div class='table-wrapper'><table class='data-table'><thead><tr><th>Terminal</th><th>City</th><th>Utilisation</th><th>Dock Rank</th></tr></thead><tbody id='utilisation'></tbody></table></div>
+<h2>Outstanding Bills</h2><div class='table-wrapper'><table class='data-table'><thead><tr><th>Member</th><th>Email</th><th>Bill Date</th><th>Total Amount</th><th>Amount Paid</th><th>Balance Due</th><th>Age Bracket</th></tr></thead><tbody id='billAgeing'></tbody></table></div>
+<h2>Sponsorship Overview</h2>
+<div class="grid cards-3" style="margin-bottom:12px">
+  <div class="card"><h3 style="margin-top:0">Total Sponsors</h3><div style="font-size:28px;font-weight:800" id="sCount">0</div></div>
+  <div class="card"><h3 style="margin-top:0">Active Contracts</h3><div style="font-size:28px;font-weight:800" id="sActive">0</div></div>
+  <div class="card"><h3 style="margin-top:0">Annual Sponsorship Revenue</h3><div style="font-size:28px;font-weight:800" id="sRev">0.00</div></div>
+</div>
+<div class='table-wrapper'><table class='data-table'><thead><tr><th>Company</th><th>Contract Ref</th><th>Start</th><th>End</th><th>Status</th><th>Days Remaining</th><th>Sponsored Assets</th></tr></thead><tbody id='sponsorsTable'></tbody></table></div>
+</div><footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
+<script>
+const API='http://localhost:3000/api';function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast ${t}`;d.innerHTML=`<span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
+async function apiCall(u,o={}){try{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}catch(e){showToast(e.message,'error');throw e;}}
+function barRow(label, pct, value){
+  return `<div class='card' style='margin-bottom:8px'>
+    <div style='display:flex;justify-content:space-between;gap:12px'><b>${label}</b><span>${value}</span></div>
+    <div style='height:10px;background:var(--grey-200);border-radius:10px;overflow:hidden;margin-top:8px'>
+      <div style='height:10px;background:var(--teal);width:${pct}%;border-radius:10px'></div>
+    </div>
+  </div>`;
+}
+async function load(){
+  const [a,b,c,d,e]=await Promise.all([
+    apiCall(`${API}/reports/revenue`),
+    apiCall(`${API}/reports/top-members`),
+    apiCall(`${API}/reports/maintenance-due`),
+    apiCall(`${API}/reports/terminal-utilisation`),
+    apiCall(`${API}/reports/bill-ageing`)
+  ]);
+  const [sponsors, sponsorRev] = await Promise.all([
+    apiCall(`${API}/sponsors`),
+    apiCall(`${API}/reports/sponsorship/revenue`)
+  ]);
+  const maxRev=Math.max(...a.map(r=>Number(r.gross_revenue)),1);
+  barChart.innerHTML=a.map(r=>{
+    const pct=Math.round((Number(r.gross_revenue)/maxRev)*100);
+    return barRow(`${r.month} | ${r.city} | ${r.asset_type}`, pct, `|${Number(r.gross_revenue).toFixed(2)}`);
+  }).join('');
+  revenue.innerHTML=a.map(r=>`<tr><td>${r.month}</td><td>${r.city}</td><td>${r.asset_type}</td><td>${r.total_rentals}</td><td>${r.gross_revenue}</td><td>${r.avg_cost}</td><td>${r.avg_duration} min</td></tr>`).join('');
+  topMembers.innerHTML=b.map((r,i)=>`<tr><td>${i+1}</td><td>${r.full_name}</td><td>${r.member_type}</td><td>${r.city}</td><td>${r.total_rentals}</td><td>${r.total_spent}</td><td>${r.last_rental?new Date(r.last_rental).toLocaleDateString():'-'}</td><td>${r.has_overdue?'<span class="badge badge-overdue">Yes</span>':'<span class="badge badge-completed">No</span>'}</td></tr>`).join('');
+  maintenance.innerHTML=c.map(r=>{
+    const days=Number(r.days_remaining);
+    const bg=days<=7?'background:var(--red);color:var(--white)':days<=14?'background:var(--amber);color:var(--text)':'';
+    return `<tr style='${bg}'><td>${r.asset_type}</td><td>${r.description}</td><td>${r.terminal_name}</td><td>${r.city}</td><td>${r.days_remaining}</td><td>${r.company_name}</td><td>${r.phone}</td></tr>`;
+  }).join('');
+  utilisation.innerHTML=d.map(r=>`<tr><td>${r.terminal_name}</td><td>${r.city}</td><td><div style='background:var(--grey-200);border-radius:8px'><div style='height:14px;background:var(--teal);width:${r.utilisation_pct}%;border-radius:8px'></div></div>${r.utilisation_pct}%</td><td>${r.dock_popularity_rank}</td></tr>`).join('');
+  billAgeing.innerHTML=e.map(r=>`<tr><td>${r.full_name}</td><td>${r.email}</td><td>${r.bill_date?.slice(0,10)}</td><td>${r.total_amount}</td><td>${r.amount_paid}</td><td>${r.balance_due}</td><td><span class='badge ${r.age_bracket==='90+'?'badge-overdue':r.age_bracket==='61-90'?'badge-pending':'badge-active'}'>${r.age_bracket}</span></td></tr>`).join('');
+
+  sCount.textContent = sponsors.length;
+  sActive.textContent = sponsors.filter(s=>s.contract_status==='active').length;
+  const revRow = (sponsorRev && sponsorRev[0]) ? sponsorRev[0] : null;
+  const rev = revRow ? Number(revRow.revenue) : sponsors.reduce((a,s)=>a+Number(s.annual_fee||0),0);
+  sRev.textContent = `${rev.toFixed(2)}`;
+
+  sponsorsTable.innerHTML = sponsors.map(s=>{
+    const badge = s.contract_status==='expired'?'badge-overdue':s.contract_status==='expiring_soon'?'badge-pending':'badge-active';
+    const days = (typeof s.days_remaining === 'number') ? s.days_remaining : '';
+    return `<tr>
+      <td><b>${s.company_name}</b><div style="color:var(--grey-500);font-size:12px">${s.sponsor_name}</div></td>
+      <td><code>${s.contract_ref}</code></td>
+      <td>${String(s.start_date).slice(0,10)}</td>
+      <td>${String(s.end_date).slice(0,10)}</td>
+      <td><span class="badge ${badge}">${s.contract_status}</span></td>
+      <td style="${days<0?'color:var(--red);font-weight:800':days<=30?'color:var(--amber);font-weight:800':''}">${days}</td>
+      <td>${s.sponsored_assets}</td>
+    </tr>`;
+  }).join('');
+}
+load();document.querySelectorAll('.nav-links a').forEach(link=>{if(link.href===window.location.href)link.classList.add('active')});document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
+</script></body></html>

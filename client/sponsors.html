@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>BSRF — Sponsors</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+    </style>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">
+        <i class="fas fa-bicycle"></i>
+        <span>BSRF</span>
+        <small>Hampshire</small>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="terminals.html">Terminals</a></li>
+        <li><a href="fleet.html">Fleet</a></li>
+        <li><a href="members.html">Members</a></li>
+        <li><a href="rentals.html">Rentals</a></li>
+        <li><a href="maintenance.html">Maintenance</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero" style="background:linear-gradient(135deg, rgba(27,42,74,0.88) 0%, rgba(13,115,119,0.82) 100%), url('https://images.unsplash.com/photo-1520975958225-5fcbcb223c8c?w=1400&q=80') center center / cover no-repeat;">
+      <h1>Sponsors & Sponsorship Assets</h1>
+      <p>Manage sponsorship contracts and assign sponsored assets across terminals and fleet.</p>
+    </section>
+
+    <div class="container">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="openSponsorModal()"><i class="fas fa-plus"></i> Add Sponsor</button>
+        <button class="btn btn-secondary" onclick="openLinkModal()"><i class="fas fa-link"></i> Link Asset</button>
+        <input id="searchSponsors" placeholder="Search sponsor/company/contract ref" style="margin-left:auto" />
+      </div>
+
+      <div class="grid cards-4" style="margin-bottom:12px">
+        <div class="card"><h3 style="margin-top:0">Total Sponsors</h3><div style="font-size:28px;font-weight:800" id="cSponsors">0</div></div>
+        <div class="card"><h3 style="margin-top:0">Active</h3><div style="font-size:28px;font-weight:800" id="cActive">0</div></div>
+        <div class="card"><h3 style="margin-top:0">Expiring Soon</h3><div style="font-size:28px;font-weight:800" id="cSoon">0</div></div>
+        <div class="card"><h3 style="margin-top:0">Expired</h3><div style="font-size:28px;font-weight:800" id="cExpired">0</div></div>
+      </div>
+
+      <h2>Sponsor Contracts</h2>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Contract Ref</th>
+              <th>Period</th>
+              <th>Annual Fee</th>
+              <th>Status</th>
+              <th>Days Remaining</th>
+              <th>Sponsored Assets</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sponsorRows"></tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:22px">Sponsorship Links</h2>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Asset Type</th>
+              <th>Asset</th>
+              <th>Logo Placement</th>
+              <th>Contract Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="linkRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sponsor create/edit -->
+    <div class="modal-overlay" id="sponsorModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="sponsorModalTitle">Add Sponsor</h2>
+          <button class="btn btn-secondary btn-sm" onclick="closeSponsorModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="sponsor_id" />
+          <div class="form-group"><label>Sponsor Name</label><input id="sponsor_name" placeholder="Brand name" /></div>
+          <div class="form-group"><label>Company Name</label><input id="company_name" placeholder="Registered company name" /></div>
+          <div class="form-group"><label>Contact Person</label><input id="contact_person" /></div>
+          <div class="form-group"><label>Phone</label><input id="phone" /></div>
+          <div class="form-group"><label>Address</label><input id="address" /></div>
+          <div class="grid cards-2" style="gap:10px">
+            <div class="form-group"><label>Start Date</label><input id="start_date" type="date" /></div>
+            <div class="form-group"><label>End Date</label><input id="end_date" type="date" /></div>
+          </div>
+          <div class="grid cards-2" style="gap:10px">
+            <div class="form-group"><label>Annual Fee (£)</label><input id="annual_fee" type="number" min="0" step="0.01" /></div>
+            <div class="form-group"><label>Contract Ref</label><input id="contract_ref" placeholder="e.g. SPON-2026-003" /></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeSponsorModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveSponsor()"><i class="fas fa-save"></i> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Link asset -->
+    <div class="modal-overlay" id="linkModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Link Sponsored Asset</h2>
+          <button class="btn btn-secondary btn-sm" onclick="closeLinkModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group"><label>Sponsor</label><select id="linkSponsor"></select></div>
+          <div class="form-group">
+            <label>Asset Type</label>
+            <select id="linkType">
+              <option value="terminal">Terminal</option>
+              <option value="bicycle">Bicycle</option>
+              <option value="scooter">Scooter</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Asset</label><select id="linkAsset"></select></div>
+          <div class="form-group"><label>Logo Placement</label><input id="logo_placement" placeholder="e.g. Frame / Deck / Screen" /></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeLinkModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="createLink()"><i class="fas fa-link"></i> Link</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>© 2026 Bicycle Scooter Rental Facility · Hampshire Social Welfare Service · University of Portsmouth</footer>
+    <div id="toast-container"></div>
+
+    <script>
+      const API = 'http://localhost:3000/api';
+      let sponsors = [];
+      let links = [];
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
+      async function apiCall(url, options = {}) {
+        const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+        const data = await response.json();
+        if (!response.ok) { showToast(data.error || 'Request failed', 'error'); throw new Error(data.error || 'Request failed'); }
+        return data;
+      }
+
+      function setCounts() {
+        cSponsors.textContent = sponsors.length;
+        cActive.textContent = sponsors.filter(s => s.contract_status === 'active').length;
+        cSoon.textContent = sponsors.filter(s => s.contract_status === 'expiring_soon').length;
+        cExpired.textContent = sponsors.filter(s => s.contract_status === 'expired').length;
+      }
+
+      function renderSponsors() {
+        setCounts();
+        const q = searchSponsors.value.trim().toLowerCase();
+        const data = q
+          ? sponsors.filter(s => `${s.company_name} ${s.sponsor_name} ${s.contract_ref}`.toLowerCase().includes(q))
+          : sponsors;
+
+        sponsorRows.innerHTML = data.map(s => {
+          const badge = s.contract_status === 'expired' ? 'badge-overdue' : s.contract_status === 'expiring_soon' ? 'badge-pending' : 'badge-active';
+          const days = typeof s.days_remaining === 'number' ? s.days_remaining : '';
+          return `<tr>
+            <td><b>${s.company_name}</b><div style="color:var(--grey-500);font-size:12px">${s.sponsor_name}</div></td>
+            <td><code>${s.contract_ref}</code></td>
+            <td>${String(s.start_date).slice(0,10)} → ${String(s.end_date).slice(0,10)}</td>
+            <td>£${Number(s.annual_fee || 0).toFixed(2)}</td>
+            <td><span class="badge ${badge}">${s.contract_status}</span></td>
+            <td style="${days<0?'color:var(--red);font-weight:800':days<=30?'color:var(--amber);font-weight:800':''}">${days}</td>
+            <td>${s.sponsored_assets}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="editSponsor(${s.sponsor_id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSponsor(${s.sponsor_id}, '${s.company_name.replace(/'/g, '&#39;')}')">Delete</button>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      function renderLinks() {
+        linkRows.innerHTML = links.map(l => {
+          const badge = l.contract_status === 'expired' ? 'badge-overdue' : l.contract_status === 'expiring_soon' ? 'badge-pending' : 'badge-active';
+          return `<tr>
+            <td><b>${l.company_name}</b></td>
+            <td><span class="badge badge-active">${l.asset_type}</span></td>
+            <td>${l.asset_description || l.asset_id}</td>
+            <td>${l.logo_placement || '-'}</td>
+            <td><span class="badge ${badge}">${l.contract_status}</span></td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="removeLink(${l.sponsor_id}, '${l.asset_type}', ${l.asset_id})">Unlink</button>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      async function refreshAll() {
+        [sponsors, links] = await Promise.all([apiCall(`${API}/sponsors`), apiCall(`${API}/sponsorship-assets`)]);
+        linkSponsor.innerHTML = sponsors.map(s => `<option value="${s.sponsor_id}">${s.company_name} (${s.contract_ref})</option>`).join('');
+        await refreshAvailableAssets();
+        renderSponsors();
+        renderLinks();
+      }
+
+      async function refreshAvailableAssets() {
+        const type = linkType.value;
+        const available = await apiCall(`${API}/sponsorship-assets/available/${type}`);
+        linkAsset.innerHTML = `<option value="">— Select —</option>` + available.map(a => `<option value="${a.asset_id}">${a.asset_description} (ID: ${a.asset_id})</option>`).join('');
+      }
+
+      function openSponsorModal() {
+        sponsor_id.value = '';
+        sponsorModalTitle.textContent = 'Add Sponsor';
+        ['sponsor_name','company_name','contact_person','phone','address','start_date','end_date','annual_fee','contract_ref'].forEach(id => document.getElementById(id).value = '');
+        sponsorModal.classList.add('open');
+      }
+      function closeSponsorModal() { sponsorModal.classList.remove('open'); }
+
+      function editSponsor(id) {
+        const s = sponsors.find(x => x.sponsor_id === id);
+        sponsor_id.value = id;
+        sponsorModalTitle.textContent = 'Edit Sponsor';
+        sponsor_name.value = s.sponsor_name || '';
+        company_name.value = s.company_name || '';
+        contact_person.value = s.contact_person || '';
+        phone.value = s.phone || '';
+        address.value = s.address || '';
+        start_date.value = String(s.start_date).slice(0,10);
+        end_date.value = String(s.end_date).slice(0,10);
+        annual_fee.value = s.annual_fee || '';
+        contract_ref.value = s.contract_ref || '';
+        sponsorModal.classList.add('open');
+      }
+
+      async function saveSponsor() {
+        const payload = {
+          sponsor_name: sponsor_name.value.trim(),
+          company_name: company_name.value.trim(),
+          contact_person: contact_person.value.trim(),
+          phone: phone.value.trim(),
+          address: address.value.trim(),
+          start_date: start_date.value,
+          end_date: end_date.value,
+          annual_fee: parseFloat(annual_fee.value || '0'),
+          contract_ref: contract_ref.value.trim()
+        };
+        if (!payload.sponsor_name || !payload.company_name || !payload.contact_person || !payload.phone || !payload.address || !payload.start_date || !payload.end_date || !payload.contract_ref) {
+          return showToast('Please complete all required sponsor fields.', 'error');
+        }
+        try {
+          if (sponsor_id.value) {
+            await apiCall(`${API}/sponsors/${sponsor_id.value}`, { method: 'PUT', body: JSON.stringify(payload) });
+            showToast('Sponsor updated.');
+          } else {
+            await apiCall(`${API}/sponsors`, { method: 'POST', body: JSON.stringify(payload) });
+            showToast('Sponsor created.');
+          }
+          closeSponsorModal();
+          await refreshAll();
+        } catch (e) {}
+      }
+
+      async function deleteSponsor(id, name) {
+        if (!confirm(`Delete sponsor "${name}"?\n\nThis will also remove all sponsorship links.`)) return;
+        try {
+          await apiCall(`${API}/sponsors/${id}`, { method: 'DELETE' });
+          showToast('Sponsor deleted.');
+          await refreshAll();
+        } catch (e) {}
+      }
+
+      function openLinkModal() {
+        logo_placement.value = '';
+        linkModal.classList.add('open');
+      }
+      function closeLinkModal() { linkModal.classList.remove('open'); }
+
+      async function createLink() {
+        const sponsorId = linkSponsor.value;
+        const type = linkType.value;
+        const assetId = linkAsset.value;
+        const placement = logo_placement.value.trim();
+        if (!sponsorId || !type || !assetId) return showToast('Select sponsor, asset type, and asset.', 'error');
+        try {
+          await apiCall(`${API}/sponsorship-assets`, {
+            method: 'POST',
+            body: JSON.stringify({ sponsor_id: parseInt(sponsorId, 10), asset_type: type, asset_id: parseInt(assetId, 10), logo_placement: placement || null })
+          });
+          showToast('Sponsorship link created.');
+          closeLinkModal();
+          await refreshAll();
+        } catch (e) {}
+      }
+
+      async function removeLink(sponsorId, assetType, assetId) {
+        if (!confirm('Remove this sponsorship link?')) return;
+        try {
+          await apiCall(`${API}/sponsorship-assets`, {
+            method: 'DELETE',
+            body: JSON.stringify({ sponsor_id: sponsorId, asset_type: assetType, asset_id: assetId })
+          });
+          showToast('Link removed.');
+          await refreshAll();
+        } catch (e) {}
+      }
+
+      linkType.addEventListener('change', refreshAvailableAssets);
+      searchSponsors.addEventListener('input', renderSponsors);
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        await refreshAll();
+        document.querySelectorAll('.nav-links a').forEach((a) => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+      });
+    </script>
+  </body>
+</html>
+

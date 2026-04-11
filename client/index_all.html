@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit/Add/Delete User</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit User Details</h1>
+
+    <label for="userId">User ID:</label>
+    <input type="number" id="userId" value="1">
+    <button onclick="fetchUser()">Fetch User</button>
+
+    <div id="userInfo" style="margin-top: 20px;">
+        <p>Name: <input type="text" id="userName"></input></p>
+        <p>Email: <input type="email" id="userEmail"></input></p>
+        <button onclick="updateUser()">Update User</button>
+    </div>
+
+    <h1>Add New User</h1>
+
+    <div id="newUserInfo" style="margin-top: 20px;">
+        <p>Name: <input type="text" id="newUserName"></input></p>
+        <p>Email: <input type="email" id="newUserEmail"></input></p>
+        <button onclick="addUser()">Add User</button>
+    </div>
+
+    <h1>Delete User</h1>
+
+    <label for="deleteUserId">User ID to Delete:</label>
+    <input type="number" id="deleteUserId">
+    <button onclick="deleteUser()">Delete User</button>
+
+    <h1>All Users</h1>
+
+    <button onclick="fetchAllUsers()">Show All Users</button>
+    <table id="usersTable" style="margin-top: 20px;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        function fetchUser() {
+            const userId = document.getElementById('userId').value;
+            fetch(`http://localhost:3000/user/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`User with ID ${userId} not found.`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('userName').value = data.name;
+                    document.getElementById('userEmail').value = data.email;
+                })
+                .catch(error => {
+                    alert(error.message);
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateUser() {
+            const userId = document.getElementById('userId').value;
+            const newName = document.getElementById('userName').value;
+            const newEmail = document.getElementById('userEmail').value;
+
+            fetch(`http://localhost:3000/user/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newName, email: newEmail }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`User updated to: Name - ${data.name}, Email - ${data.email}`);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function addUser() {
+            const newName = document.getElementById('newUserName').value;
+            const newEmail = document.getElementById('newUserEmail').value;
+
+            fetch('http://localhost:3000/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newName, email: newEmail }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`New user added: ID - ${data.id}, Name - ${data.name}, Email - ${data.email}`);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+
+            fetch(`http://localhost:3000/user/${userId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchAllUsers() {
+            fetch('http://localhost:3000/users')
+            .then(response => response.json())
+            .then(data => {
+                const usersTableBody = document.querySelector('#usersTable tbody');
+                usersTableBody.innerHTML = ''; // Clear any existing rows
+
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                    `;
+                    usersTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

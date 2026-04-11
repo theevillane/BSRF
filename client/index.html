@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0'><title>BSRF Home</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');</style><link rel='stylesheet' href='css/style.css'></head><body>
+<nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle' aria-label='Toggle navigation'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li><a href='terminals.html'>Terminals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='members.html'>Members</a></li><li><a href='rentals.html'>Rentals</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='sponsors.html'>Sponsors</a></li><li><a href='reports.html'>Reports</a></li><li><a href='contact.html'>Contact</a></li><li><a href='about.html'>About</a></li></ul></nav>
+<section class='hero' style="background:linear-gradient(135deg, rgba(27,42,74,0.88) 0%, rgba(13,115,119,0.82) 100%), url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80') center center / cover no-repeat;"><h1>Hampshire's Smart Bicycle & E-Scooter Network</h1><p>Explore Hampshire sustainably — rent, ride, return.</p></section>
+<div class='container'>
+<h2>Live Dashboard</h2><div class='grid cards-5' id='stats'></div>
+<h2>How It Works</h2><div class='grid cards-3'><div class='card'><i class='fas fa-user-plus'></i><h3>Join as Member</h3><p>Register and verify your age profile.</p></div><div class='card'><i class='fas fa-map-marker-alt'></i><h3>Find a Terminal</h3><p>Pick up a bicycle or e-scooter near you.</p></div><div class='card'><i class='fas fa-flag-checkered'></i><h3>Ride & Return</h3><p>Return at any dock and pay instantly.</p></div></div>
+<div class="video-section" style="background:var(--grey-50);padding:60px 32px;text-align:center">
+  <h2 style="font-family:'Space Grotesk',sans-serif;color:var(--navy);margin-bottom:8px">See BSRF in Action</h2>
+  <p style="color:var(--grey-500);margin-bottom:32px">Watch how our rental system works — from terminal to return.</p>
+  <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:720px;margin:0 auto;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15)">
+    <iframe style="position:absolute;top:0;left:0;width:100%;height:100%" src="https://www.youtube.com/embed/aLlbXxUMRYk" title="Cycle hire system explainer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</div>
+<h2>Coverage Map</h2><div class='grid cards-5' id='cities'></div>
+<h2>Quick Links</h2><div class='grid cards-4'><a class='card' href='terminals.html'><h3>Terminals</h3></a><a class='card' href='fleet.html'><h3>Fleet</h3></a><a class='card' href='members.html'><h3>Members</h3></a><a class='card' href='rentals.html'><h3>Rentals</h3></a></div>
+</div>
+<footer>2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
+<script>
+const API='http://localhost:3000/api';
+function showToast(message,type='success'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;const icon=type==='success'?'fa-check-circle':type==='error'?'fa-times-circle':'fa-exclamation-triangle';t.innerHTML=`<i class='fas ${icon}'></i><span>${message}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3500)}
+async function apiCall(url,options={}){try{const response=await fetch(url,{headers:{'Content-Type':'application/json'},...options});const data=await response.json();if(!response.ok)throw new Error(data.error||'Request failed');return data;}catch(err){showToast(err.message,'error');throw err;}}
+function animate(el,to){let cur=0;const step=()=>{cur+=Math.max(1,Math.ceil(to/40));if(cur>to)cur=to;el.textContent=cur;if(cur<to)requestAnimationFrame(step)};step()}
+const CITY_IMAGES = {
+  'Portsmouth':  'https://images.unsplash.com/photo-1577086664693-894d8405334f?w=400&q=70',
+  'Southampton': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=70',
+  'Winchester':  'https://images.unsplash.com/photo-1548082698-f2af8d83e1cb?w=400&q=70',
+  'Basingstoke': 'https://images.unsplash.com/photo-1548082698-f2af8d83e1cb?w=400&q=70',
+  'Andover':     'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=400&q=70'
+};
+
+async function renderCities(byCity){
+  cities.innerHTML=['Portsmouth','Southampton','Winchester','Basingstoke','Andover'].map(c=>`
+    <div class='card' style="min-height:140px;color:white;background:linear-gradient(135deg, rgba(27,42,74,0.75), rgba(13,115,119,0.65)), url('${CITY_IMAGES[c]}') center/cover no-repeat;">
+      <h3 style="margin-top:0">${c}</h3>
+      <p style="margin:0;color:rgba(255,255,255,0.85)">${byCity[c]||0} terminal(s)</p>
+    </div>`).join('');
+}
+
+async function load(){const s=await apiCall(`${API}/stats`);const cards=[['fa-map-marker-alt','Total Terminals',s.terminals],['fa-bicycle','Available Bicycles',s.availableBicycles],['fa-bolt','Available Scooters',s.availableScooters],['fa-users','Active Members',s.activeMembers],['fa-play-circle','Active Rentals',s.activeRentals],['fa-exclamation-triangle','Overdue Rentals',s.overdueRentals]];stats.innerHTML=cards.map(c=>`<div class='stat-card'><i class='fas ${c[0]}'></i><div class='num'>0</div><div>${c[1]}</div></div>`).join('');document.querySelectorAll('.num').forEach((n,i)=>animate(n,cards[i][2]));const t=await apiCall(`${API}/terminals`);const byCity={};t.forEach(x=>byCity[x.city]=(byCity[x.city]||0)+1);await renderCities(byCity);}
+load();document.querySelectorAll('.nav-links a').forEach(link=>{if(link.href===window.location.href)link.classList.add('active')});document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
+</script></body></html>

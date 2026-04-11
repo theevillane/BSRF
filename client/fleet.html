@@ -1,0 +1,550 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Fleet Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+    </style>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">
+        <i class="fas fa-bicycle"></i>
+        <span>BSRF</span>
+        <small>Hampshire</small>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="terminals.html">Terminals</a></li>
+        <li><a href="fleet.html">Fleet</a></li>
+        <li><a href="members.html">Members</a></li>
+        <li><a href="rentals.html">Rentals</a></li>
+        <li><a href="maintenance.html">Maintenance</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero">
+      <h1>Fleet Management</h1>
+      <p>Manage bicycles and e-scooters across Hampshire terminals.</p>
+    </section>
+
+    <div class="container">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <select id="filterType">
+          <option value="">All</option>
+          <option value="bicycle">Bicycles</option>
+          <option value="scooter">Scooters</option>
+        </select>
+        <select id="filterStatus">
+          <option value="">All Status</option>
+          <option value="available">Available</option>
+          <option value="rented">Rented</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+        <select id="filterCity">
+          <option value="">All Cities</option>
+          <option value="Portsmouth">Portsmouth</option>
+          <option value="Southampton">Southampton</option>
+          <option value="Winchester">Winchester</option>
+          <option value="Basingstoke">Basingstoke</option>
+          <option value="Andover">Andover</option>
+        </select>
+        <input id="searchInput" placeholder="Search make/model/colour" />
+
+        <div class="add-dropdown" style="position:relative;display:inline-block;margin-left:auto">
+          <button class="btn btn-primary" id="addFleetBtn">
+            <i class="fas fa-plus"></i> Add Asset <i class="fas fa-chevron-down"></i>
+          </button>
+          <div
+            class="add-dropdown-menu"
+            id="addDropdownMenu"
+            style="display:none;position:absolute;top:110%;right:0;background:white;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:180px;z-index:100;overflow:hidden"
+          >
+            <button
+              class="dropdown-item"
+              onclick="openAddBicycleModal(); closeAddDropdown()"
+              style="display:flex;align-items:center;gap:10px;padding:12px 16px;width:100%;border:none;background:none;cursor:pointer;font-size:14px"
+            >
+              <i class="fas fa-bicycle" style="color:var(--teal)"></i> Add Bicycle
+            </button>
+            <button
+              class="dropdown-item"
+              onclick="openAddScooterModal(); closeAddDropdown()"
+              style="display:flex;align-items:center;gap:10px;padding:12px 16px;width:100%;border:none;background:none;cursor:pointer;font-size:14px"
+            >
+              <i class="fas fa-bolt" style="color:var(--teal)"></i> Add E-Scooter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cards-3" style="margin-top:12px">
+        <div class="card">Total Fleet <b id="summaryTotal">0</b></div>
+        <div class="card">Available <b id="summaryAvailable">0</b></div>
+        <div class="card">In Maintenance <b id="summaryMaintenance">0</b></div>
+      </div>
+
+      <div class="table-wrapper" style="margin-top:12px">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Asset ID</th>
+              <th>Description</th>
+              <th>Size</th>
+              <th>Subtype/Colour</th>
+              <th>Terminal (City)</th>
+              <th class="hide-mobile">GPS Sensor ID</th>
+              <th>Status</th>
+              <th>Sponsor</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fleetBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bicycle modal -->
+    <div class="modal-overlay" id="bicycleModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="bicycleModalTitle">Add New Bicycle</h2>
+          <button class="btn btn-secondary btn-sm" onclick="closeBicycleModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="bicycleForm" onsubmit="event.preventDefault(); saveBicycle();">
+            <div class="form-group">
+              <label>Terminal</label>
+              <select id="bicycleTerminalId" required>
+                <option value=""> Select Terminal </option>
+              </select>
+              <span class="form-error" id="bicycleTerminalIdError"></span>
+            </div>
+            <div class="form-group">
+              <label>Manufacturer (Make)</label>
+              <input type="text" id="bicycleMake" placeholder="e.g. Trek" required />
+              <span class="form-error" id="bicycleMakeError"></span>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="bicycleModel" placeholder="e.g. FX3 Disc" required />
+              <span class="form-error" id="bicycleModelError"></span>
+            </div>
+            <div class="form-group">
+              <label>Size</label>
+              <select id="bicycleSize" required>
+                <option value=""> Select Size </option>
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+              </select>
+              <span class="form-error" id="bicycleSizeError"></span>
+            </div>
+            <div class="form-group">
+              <label>Bicycle Type</label>
+              <select id="bicycleType" required>
+                <option value=""> Select Type </option>
+                <option value="adult">Adult</option>
+                <option value="child">Child</option>
+                <option value="senior_citizen">Senior Citizen</option>
+              </select>
+              <span class="form-error" id="bicycleTypeError"></span>
+            </div>
+            <div class="form-group">
+              <label>GPS Sensor ID</label>
+              <input type="text" id="bicycleGps" placeholder="e.g. GPS-BK-021" required />
+              <span class="form-error" id="bicycleGpsError"></span>
+            </div>
+            <div class="form-group" id="bicycleStatusGroup" style="display:none">
+              <label>Status</label>
+              <select id="bicycleStatus">
+                <option value="available">Available</option>
+                <option value="rented">Rented</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeBicycleModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveBicycle()"><i class="fas fa-save"></i> Save Bicycle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scooter modal -->
+    <div class="modal-overlay" id="scooterModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="scooterModalTitle">Add New E-Scooter</h2>
+          <button class="btn btn-secondary btn-sm" onclick="closeScooterModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="scooterForm" onsubmit="event.preventDefault(); saveScooter();">
+            <div class="form-group">
+              <label>Terminal</label>
+              <select id="scooterTerminalId" required>
+                <option value=""> Select Terminal </option>
+              </select>
+              <span class="form-error" id="scooterTerminalIdError"></span>
+            </div>
+            <div class="form-group">
+              <label>Colour</label>
+              <input type="text" id="scooterColour" placeholder="e.g. Black" required />
+              <span class="form-error" id="scooterColourError"></span>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="scooterModel" placeholder="e.g. Segway Ninebot MAX G30" required />
+              <span class="form-error" id="scooterModelError"></span>
+            </div>
+            <div class="form-group">
+              <label>Size</label>
+              <select id="scooterSize" required>
+                <option value=""> Select Size </option>
+                <option value="Compact">Compact</option>
+                <option value="Standard">Standard</option>
+                <option value="Large">Large</option>
+              </select>
+              <span class="form-error" id="scooterSizeError"></span>
+            </div>
+            <div class="form-group">
+              <label>GPS Sensor ID</label>
+              <input type="text" id="scooterGps" placeholder="e.g. GPS-SC-016" required />
+              <span class="form-error" id="scooterGpsError"></span>
+            </div>
+            <div class="form-group" id="scooterStatusGroup" style="display:none">
+              <label>Status</label>
+              <select id="scooterStatus">
+                <option value="available">Available</option>
+                <option value="rented">Rented</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeScooterModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveScooter()"><i class="fas fa-save"></i> Save E-Scooter</button>
+        </div>
+      </div>
+    </div>
+
+    <footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer>
+    <div id="toast-container"></div>
+
+    <script>
+      let allFleet = [];
+      let terminals = [];
+      let editingAsset = null; // { type: 'bicycle'|'scooter', id: number } or null
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
+
+      async function apiCall(url, options = {}) {
+        const response = await fetch(url, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          showToast(data.error || 'Request failed', 'error');
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      }
+
+      function applyFilters(data) {
+        const type = document.getElementById('filterType').value;
+        const status = document.getElementById('filterStatus').value;
+        const city = document.getElementById('filterCity').value;
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+        return data.filter((row) => {
+          if (type && row.asset_type !== type) return false;
+          if (status && row.status !== status) return false;
+          if (city && row.city !== city) return false;
+          if (q) {
+            const hay = `${row.make || ''} ${row.colour || ''} ${row.model || ''}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function updateSummaryCards(data) {
+        document.getElementById('summaryTotal').textContent = data.length;
+        document.getElementById('summaryAvailable').textContent = data.filter((r) => r.status === 'available').length;
+        document.getElementById('summaryMaintenance').textContent = data.filter((r) => r.status === 'maintenance').length;
+      }
+
+      function renderFleet(data) {
+        const body = document.getElementById('fleetBody');
+        body.innerHTML = '';
+        data.forEach((row) => {
+          const name = row.asset_type === 'bicycle'
+            ? `${row.make} ${row.model}`
+            : `${row.colour} ${row.model}`;
+          const sponsorCell = row.sponsor_name
+            ? `<span class="badge badge-active">??? ${row.sponsor_name}</span>`
+            : `<span style="color:var(--grey-500)">Unsponsored</span>`;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><span class="badge badge-active">${row.asset_type === 'bicycle' ? 'Bicycle' : 'E-Scooter'}</span></td>
+            <td><code>${row.asset_id}</code></td>
+            <td><b>${name}</b></td>
+            <td>${row.size}</td>
+            <td>${row.subtype || row.colour || '-'}</td>
+            <td>${row.terminal_name} (${row.city})</td>
+            <td class="hide-mobile"><code>${row.gps_sensor_id}</code></td>
+            <td><span class="badge badge-${row.status}">${row.status}</span></td>
+            <td>${sponsorCell}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" type="button">Edit</button>
+              <button class="btn btn-danger btn-sm" type="button">Delete</button>
+            </td>
+          `;
+          const [editBtn, delBtn] = tr.querySelectorAll('button');
+          editBtn.addEventListener('click', () => {
+            if (row.asset_type === 'bicycle') openEditBicycleModal({
+              id: row.asset_id,
+              terminal_id: row.terminal_id,
+              make: row.make,
+              model: row.model,
+              size: row.size,
+              subtype: row.subtype,
+              gps_sensor_id: row.gps_sensor_id,
+              status: row.status
+            });
+            else openEditScooterModal({
+              id: row.asset_id,
+              terminal_id: row.terminal_id,
+              colour: row.colour,
+              model: row.model,
+              size: row.size,
+              gps_sensor_id: row.gps_sensor_id,
+              status: row.status
+            });
+          });
+          delBtn.addEventListener('click', () => deleteAsset(row.asset_type, row.asset_id, name));
+          body.appendChild(tr);
+        });
+      }
+
+      async function loadFleet() {
+        try {
+          const data = await apiCall('http://localhost:3000/api/fleet');
+          allFleet = data;
+          renderFleet(applyFilters(data));
+          updateSummaryCards(data);
+        } catch (e) {}
+      }
+
+      async function loadTerminals() {
+        try {
+          terminals = await apiCall('http://localhost:3000/api/terminals');
+          ['bicycleTerminalId', 'scooterTerminalId'].forEach((selectId) => {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            sel.innerHTML = '<option value=""> Select Terminal </option>';
+            terminals.forEach((t) => {
+              const opt = document.createElement('option');
+              opt.value = t.terminal_id;
+              opt.textContent = `${t.terminal_name}  ${t.city}`;
+              sel.appendChild(opt);
+            });
+          });
+        } catch (e) {}
+      }
+
+      function showFieldError(errorElementId, message) {
+        const el = document.getElementById(errorElementId);
+        if (el) {
+          el.textContent = message;
+          el.style.display = 'block';
+          el.classList.add('visible');
+        }
+      }
+      function clearBicycleFormErrors() {
+        ['bicycleTerminalIdError','bicycleMakeError','bicycleModelError','bicycleSizeError','bicycleTypeError','bicycleGpsError'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) { el.textContent = ''; el.style.display = 'none'; el.classList.remove('visible'); }
+        });
+      }
+      function clearScooterFormErrors() {
+        ['scooterTerminalIdError','scooterSizeError','scooterColourError','scooterModelError','scooterGpsError'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) { el.textContent = ''; el.style.display = 'none'; el.classList.remove('visible'); }
+        });
+      }
+
+      function openAddBicycleModal() {
+        editingAsset = null;
+        document.getElementById('bicycleModalTitle').textContent = 'Add New Bicycle';
+        document.getElementById('bicycleForm').reset();
+        clearBicycleFormErrors();
+        document.getElementById('bicycleStatusGroup').style.display = 'none';
+        document.getElementById('bicycleModal').classList.add('open');
+      }
+      function openEditBicycleModal(assetData) {
+        editingAsset = { type: 'bicycle', id: assetData.id };
+        document.getElementById('bicycleModalTitle').textContent = 'Edit Bicycle';
+        document.getElementById('bicycleTerminalId').value = assetData.terminal_id;
+        document.getElementById('bicycleMake').value = assetData.make;
+        document.getElementById('bicycleModel').value = assetData.model;
+        document.getElementById('bicycleSize').value = assetData.size;
+        document.getElementById('bicycleType').value = assetData.subtype;
+        document.getElementById('bicycleGps').value = assetData.gps_sensor_id;
+        document.getElementById('bicycleStatus').value = assetData.status;
+        document.getElementById('bicycleStatusGroup').style.display = 'block';
+        clearBicycleFormErrors();
+        document.getElementById('bicycleModal').classList.add('open');
+      }
+
+      function openAddScooterModal() {
+        editingAsset = null;
+        document.getElementById('scooterModalTitle').textContent = 'Add New E-Scooter';
+        document.getElementById('scooterForm').reset();
+        clearScooterFormErrors();
+        document.getElementById('scooterStatusGroup').style.display = 'none';
+        document.getElementById('scooterModal').classList.add('open');
+      }
+      function openEditScooterModal(assetData) {
+        editingAsset = { type: 'scooter', id: assetData.id };
+        document.getElementById('scooterModalTitle').textContent = 'Edit E-Scooter';
+        document.getElementById('scooterTerminalId').value = assetData.terminal_id;
+        document.getElementById('scooterColour').value = assetData.colour;
+        document.getElementById('scooterModel').value = assetData.model;
+        document.getElementById('scooterSize').value = assetData.size;
+        document.getElementById('scooterGps').value = assetData.gps_sensor_id;
+        document.getElementById('scooterStatus').value = assetData.status;
+        document.getElementById('scooterStatusGroup').style.display = 'block';
+        clearScooterFormErrors();
+        document.getElementById('scooterModal').classList.add('open');
+      }
+
+      function closeBicycleModal() { document.getElementById('bicycleModal').classList.remove('open'); }
+      function closeScooterModal() { document.getElementById('scooterModal').classList.remove('open'); }
+
+      async function saveBicycle() {
+        clearBicycleFormErrors();
+        const terminal_id = document.getElementById('bicycleTerminalId').value.trim();
+        const make = document.getElementById('bicycleMake').value.trim();
+        const model = document.getElementById('bicycleModel').value.trim();
+        const size = document.getElementById('bicycleSize').value.trim();
+        const bicycle_type = document.getElementById('bicycleType').value;
+        const gps_sensor_id = document.getElementById('bicycleGps').value.trim();
+        const status = editingAsset ? document.getElementById('bicycleStatus').value : 'available';
+
+        let valid = true;
+        if (!terminal_id) { showFieldError('bicycleTerminalIdError', 'Select a terminal.'); valid = false; }
+        if (!make) { showFieldError('bicycleMakeError', 'Manufacturer is required.'); valid = false; }
+        if (!model) { showFieldError('bicycleModelError', 'Model is required.'); valid = false; }
+        if (!size) { showFieldError('bicycleSizeError', 'Size is required.'); valid = false; }
+        if (!bicycle_type) { showFieldError('bicycleTypeError', 'Type is required.'); valid = false; }
+        if (!gps_sensor_id) { showFieldError('bicycleGpsError', 'GPS sensor ID is required.'); valid = false; }
+        if (!valid) return;
+
+        const body = JSON.stringify({ terminal_id, make, model, size, bicycle_type, gps_sensor_id, status });
+        try {
+          if (editingAsset) {
+            await apiCall(`http://localhost:3000/api/bicycles/${editingAsset.id}`, { method: 'PUT', body });
+            showToast('Bicycle updated successfully');
+          } else {
+            await apiCall('http://localhost:3000/api/bicycles', { method: 'POST', body });
+            showToast('Bicycle added successfully');
+          }
+          closeBicycleModal();
+          await loadFleet();
+        } catch (e) {}
+      }
+
+      async function saveScooter() {
+        clearScooterFormErrors();
+        const terminal_id = document.getElementById('scooterTerminalId').value.trim();
+        const size = document.getElementById('scooterSize').value.trim();
+        const colour = document.getElementById('scooterColour').value.trim();
+        const model = document.getElementById('scooterModel').value.trim();
+        const gps_sensor_id = document.getElementById('scooterGps').value.trim();
+        const status = editingAsset ? document.getElementById('scooterStatus').value : 'available';
+
+        let valid = true;
+        if (!terminal_id) { showFieldError('scooterTerminalIdError', 'Select a terminal.'); valid = false; }
+        if (!size) { showFieldError('scooterSizeError', 'Size is required.'); valid = false; }
+        if (!colour) { showFieldError('scooterColourError', 'Colour is required.'); valid = false; }
+        if (!model) { showFieldError('scooterModelError', 'Model is required.'); valid = false; }
+        if (!gps_sensor_id) { showFieldError('scooterGpsError', 'GPS sensor ID is required.'); valid = false; }
+        if (!valid) return;
+
+        const body = JSON.stringify({ terminal_id, size, colour, model, gps_sensor_id, status });
+        try {
+          if (editingAsset) {
+            await apiCall(`http://localhost:3000/api/scooters/${editingAsset.id}`, { method: 'PUT', body });
+            showToast('E-Scooter updated successfully');
+          } else {
+            await apiCall('http://localhost:3000/api/scooters', { method: 'POST', body });
+            showToast('E-Scooter added successfully');
+          }
+          closeScooterModal();
+          await loadFleet();
+        } catch (e) {}
+      }
+
+      async function deleteAsset(type, id, name) {
+        const confirmed = confirm(`Delete ${type} \"${name}\"?\n\nThis cannot be undone. Active rentals will block deletion.`);
+        if (!confirmed) return;
+        try {
+          const endpoint = type === 'bicycle'
+            ? `http://localhost:3000/api/bicycles/${id}`
+            : `http://localhost:3000/api/scooters/${id}`;
+          const result = await apiCall(endpoint, { method: 'DELETE' });
+          showToast(result.message || `${type} deleted.`);
+          await loadFleet();
+        } catch (e) {}
+      }
+
+      document.getElementById('addFleetBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById('addDropdownMenu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+      document.addEventListener('click', () => {
+        document.getElementById('addDropdownMenu').style.display = 'none';
+      });
+      function closeAddDropdown() { document.getElementById('addDropdownMenu').style.display = 'none'; }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadTerminals();
+        await loadFleet();
+        document.getElementById('filterType').addEventListener('change', () => renderFleet(applyFilters(allFleet)));
+        document.getElementById('filterStatus').addEventListener('change', () => renderFleet(applyFilters(allFleet)));
+        document.getElementById('filterCity').addEventListener('change', () => renderFleet(applyFilters(allFleet)));
+        document.getElementById('searchInput').addEventListener('input', () => renderFleet(applyFilters(allFleet)));
+        document.querySelectorAll('.nav-links a').forEach((a) => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.getElementById('navToggle').addEventListener('click', () => { document.getElementById('navLinks').classList.toggle('open'); });
+      });
+    </script>
+  </body>
+</html>
