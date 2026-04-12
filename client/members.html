@@ -1,248 +1,251 @@
 <!doctype html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0'><title>Members</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');</style><link rel='stylesheet' href='css/style.css'></head><body>
-<nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li><a href='terminals.html'>Terminals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='members.html'>Members</a></li><li><a href='rentals.html'>Rentals</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='sponsors.html'>Sponsors</a></li><li><a href='reports.html'>Reports</a></li><li><a href='about.html'>About</a></li><li><a href='contact.html'>Contact</a></li></ul></nav>
-<section class='hero'><h1>Member Management <span id='activeBadge' class='badge badge-active'>0</span></h1></section><div class='container'>
-<div class='grid cards-4' style='margin-bottom:12px'><div class='card'>Total <b id='cTotal'>0</b></div><div class='card'>Adults <b id='cAdult'>0</b></div><div class='card'>Senior <b id='cSenior'>0</b></div><div class='card'>Children <b id='cChild'>0</b></div></div>
-<div style='display:flex;gap:8px;flex-wrap:wrap'><select id='statusF'><option value=''>All Status</option><option value='active'>Active</option><option value='suspended'>Suspended</option><option value='cancelled'>Cancelled</option></select><select id='typeF'><option value=''>All Type</option><option value='adult'>Adult</option><option value='senior_citizen'>Senior</option><option value='child'>Child</option></select><input id='search' placeholder='Search by name/email'><button class='btn btn-primary' onclick='openForm()'>Add Member</button></div>
-<div class='table-wrapper'><table class='data-table'><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>City</th><th>Email</th><th>Phone</th><th>DOB</th><th>Status</th><th>Fee</th><th>Actions</th></tr></thead><tbody id='rows'></tbody></table></div></div>
-<div class='modal-overlay' id='m'><div class='modal'><div class='modal-header'><h2 id='mt'>Add Member</h2></div><div class='modal-body'><input id='member_id' type='hidden'>
-  <div class='form-group'><label>Full Name</label><input id='full_name' required></div>
-  <div class='form-group'><label>Email</label><input id='email' type='email' required></div>
-  <div class='form-group'><label>Phone</label><input id='phone' required></div>
-  <div class='form-group'><label>Address</label><input id='address_line1' required></div>
-  <div class='form-group'><label>City</label><input id='city' required></div>
-  <div class='form-group'><label>Postcode</label><input id='postcode' required></div>
-  <div class='form-group'><label>DOB</label><input id='date_of_birth' type='date' required></div>
-
-  <input type="hidden" id="hiddenMemberType">
-  <input type="hidden" id="hiddenMonthlyFee">
-
-  <div class="form-group">
-    <label>Member Type (auto-calculated)</label>
-    <div style="padding:10px 12px;background:var(--grey-100);border-radius:8px;font-weight:600" id="memberTypeDisplay"> Enter date of birth </div>
-  </div>
-  <div class="form-group">
-    <label>Monthly Fee (auto-calculated)</label>
-    <div style="padding:10px 12px;background:var(--grey-100);border-radius:8px" id="memberFeeDisplay"> Enter date of birth </div>
-  </div>
-  <div id="ageWarning" style="display:none;padding:12px;background:#FEE2E2;border-radius:8px;border-left:4px solid var(--red);margin-bottom:12px;font-size:14px"></div>
-
-  <!-- Parent / Guardian field : shown only when DOB indicates age < 14 -->
-  <div class="form-group" id="parentFieldGroup" style="display:none">
-    <label>Parent / Guardian Member <span style="color:var(--red)">*</span></label>
-    <div style="position:relative">
-      <input type="text" id="parentSearch" placeholder="Type parent's name to search" autocomplete="off" style="width:100%">
-      <input type="hidden" id="parentMemberId">
-      <div id="parentSuggestions"
-           style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--teal);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:500;box-shadow:0 8px 16px rgba(0,0,0,0.08)"></div>
+  <nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle' aria-label='Toggle navigation'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li class='dropdown'><a href='#'>Operations <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='rentals.html'>Rentals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='terminals.html'>Terminals</a></li></ul></li><li class='dropdown'><a href='#'>Management <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='members.html'>Members</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='reports.html'>Reports</a></li></ul></li><li class='dropdown'><a href='#'>System <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='sponsors.html'>Sponsors</a></li><li><a href='about.html'>About</a></li><li><a href='contact.html'>Contact</a></li></ul></li></ul></nav>
+  <section class='hero'><h1>Member Management <span id='activeBadge' class='badge badge-active'>0</span></h1></section><div class='container'>
+  <div class='grid cards-4' style='margin-bottom:12px'><div class='card'>Total <b id='cTotal'>0</b></div><div class='card'>Adults <b id='cAdult'>0</b></div><div class='card'>Senior / 70+ <b id='cSenior'>0</b></div><div class='card'>Youth &amp; dependents <b id='cChild'>0</b></div></div>
+  <div style='display:flex;gap:8px;flex-wrap:wrap'><select id='statusF'><option value=''>All Status</option><option value='active'>Active</option><option value='suspended'>Suspended</option><option value='cancelled'>Cancelled</option></select><select id='typeF'><option value=''>All Type</option><option value='adult'>Adult</option><option value='senior_citizen'>Senior (65–70)</option><option value='over_70'>Over 70</option><option value='child'>Youth (14–17)</option><option value='dependent_child'>Dependent (&lt;14)</option></select><input id='search' placeholder='Search by name/email'><button class='btn btn-primary' onclick='openForm()'>Add Member</button></div>
+  <div class='table-wrapper'><table class='data-table'><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>City</th><th>Email</th><th>Phone</th><th>DOB</th><th>Status</th><th>Fee</th><th>Actions</th></tr></thead><tbody id='rows'></tbody></table></div></div>
+  <div class='modal-overlay' id='m'><div class='modal'><div class='modal-header'><h2 id='mt'>Add Member</h2></div><div class='modal-body'><input id='member_id' type='hidden'>
+    <div class='form-group'><label>Full Name</label><input id='full_name' required></div>
+    <div class='form-group'><label>Email</label><input id='email' type='email' required></div>
+    <div class='form-group'><label>Phone</label><input id='phone' required></div>
+    <div class='form-group'><label>Address</label><input id='address_line1' required></div>
+    <div class='form-group'><label>City</label><input id='city' required></div>
+    <div class='form-group'><label>Postcode</label><input id='postcode' required></div>
+    <div class='form-group'><label>DOB</label><input id='date_of_birth' type='date' required></div>
+  
+    <input type="hidden" id="hiddenMemberType">
+    <input type="hidden" id="hiddenMonthlyFee">
+  
+    <div class="form-group">
+      <label>Member Type (auto-calculated)</label>
+      <div style="padding:10px 12px;background:var(--grey-100);border-radius:8px;font-weight:600" id="memberTypeDisplay"> Enter date of birth </div>
     </div>
-    <span class="form-error" id="parentError"></span>
-    <small style="color:var(--grey-500);margin-top:4px;display:block">
-      Search for an existing adult or senior member who will be responsible for payment.
-    </small>
-  </div>
-  <div class='form-group'><label>Status</label><select id='membership_status'><option>active</option><option>suspended</option><option>cancelled</option></select></div>
-</div><div class='modal-footer'><button class='btn btn-secondary' onclick='closeForm()'>Cancel</button><button class='btn btn-primary' onclick='save()'>Save</button></div></div></div>
-<div class='modal-overlay' id='viewM'><div class='modal'><div class='modal-header'><h2>Member Profile</h2></div><div class='modal-body' id='profile'></div><div class='modal-footer'><button class='btn btn-secondary' onclick="viewM.classList.remove('open')">Close</button></div></div></div>
-<footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
-<script>
-const API='http://localhost:3000/api';let members=[];function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast ${t}`;const icon=t==='success'?'fa-check-circle':t==='error'?'fa-times-circle':'fa-exclamation-triangle';d.innerHTML=`<i class='fas ${icon}'></i><span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
-async function apiCall(u,o={}){try{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}catch(e){showToast(e.message,'error');throw e;}}
-function updateCounts(){
-  cTotal.textContent=members.length;
-  cAdult.textContent=members.filter(m=>m.member_type==='adult').length;
-  cSenior.textContent=members.filter(m=>m.member_type==='senior_citizen').length;
-  cChild.textContent=members.filter(m=>m.member_type==='child').length;
-  activeBadge.textContent=members.filter(m=>m.membership_status==='active').length;
-}
-function render(){
-  updateCounts();
-  let d=[...members];
-  if(statusF.value)d=d.filter(x=>x.membership_status===statusF.value);
-  if(typeF.value)d=d.filter(x=>x.member_type===typeF.value);
-  if(search.value){const q=search.value.toLowerCase();d=d.filter(x=>`${x.full_name} ${x.email}`.toLowerCase().includes(q));}
-  rows.innerHTML=d.map(x=>`<tr><td>${x.member_id}</td><td>${x.full_name}</td><td><span class='badge badge-${x.member_type}'>${x.member_type}</span></td><td>${x.city}</td><td>${x.email}</td><td>${x.phone}</td><td>${x.date_of_birth?.slice(0,10)}</td><td><span class='badge badge-${x.membership_status==='active'?'active':x.membership_status==='cancelled'?'overdue':'pending'}'>${x.membership_status}</span></td><td>${Number(x.monthly_fee || 0).toFixed(2)}</td><td><button class='btn btn-secondary btn-sm' onclick='edit(${x.member_id})'>Edit</button> <button class='btn btn-secondary btn-sm' onclick='view(${x.member_id})'>View</button> <button class='btn btn-danger btn-sm' onclick='del(${x.member_id})'>Delete</button></td></tr>`).join('')
-}
-async function refresh(){members=await apiCall(`${API}/members`);render();}
-function openForm(){
-  member_id.value='';
-  mt.textContent='Add Member';
-  document.getElementById('parentFieldGroup').style.display='none';
-  document.getElementById('parentSearch').value='';
-  document.getElementById('parentMemberId').value='';
-  document.getElementById('ageWarning').style.display='none';
-  document.getElementById('hiddenMemberType').value='';
-  document.getElementById('hiddenMonthlyFee').value='';
-  document.getElementById('memberTypeDisplay').textContent=' Enter date of birth ';
-  document.getElementById('memberFeeDisplay').textContent=' Enter date of birth ';
-  m.classList.add('open');
-} 
-function closeForm(){m.classList.remove('open')}
-function edit(id){const x=members.find(r=>r.member_id===id);for(const k of ['full_name','email','phone','address_line1','city','postcode','date_of_birth','membership_status'])window[k].value=(x[k]||'').toString().slice(0,10);member_id.value=id;mt.textContent='Edit Member';handleDob();m.classList.add('open')}
-function age(d){const b=new Date(d);const t=new Date();let a=t.getFullYear()-b.getFullYear();const m=t.getMonth()-b.getMonth();if(m<0||(m===0&&t.getDate()<b.getDate()))a--;return a;}
-function handleDob(){
-  const dob = new Date(date_of_birth.value);
-  const today = new Date();
-  let a = today.getFullYear() - dob.getFullYear();
-  const monthDiff = today.getMonth() - dob.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) a--;
-
-  const typeDisplay  = document.getElementById('memberTypeDisplay');
-  const feeDisplay   = document.getElementById('memberFeeDisplay');
-  const parentGroup  = document.getElementById('parentFieldGroup');
-  const ageWarn      = document.getElementById('ageWarning');
-  const submitBtn    = document.querySelector('#m .modal-footer .btn.btn-primary');
-
-  ageWarn.style.display='none';
-  ageWarn.textContent='';
-  parentGroup.style.display='none';
-  document.getElementById('parentSearch').value='';
-  document.getElementById('parentMemberId').value='';
-  submitBtn.disabled=false;
-
-  if (Number.isNaN(a)) return;
-
-  if (a < 14) {
-    typeDisplay.textContent = 'Child';
-    feeDisplay.textContent  = '0.00 / month (parent responsible)';
-    parentGroup.style.display = 'block';
-    document.getElementById('hiddenMemberType').value = 'child';
-    document.getElementById('hiddenMonthlyFee').value = '0.00';
-  } else if (a >= 14 && a <= 17) {
-    typeDisplay.textContent = '$';
-    feeDisplay.textContent  = '$';
-    ageWarn.textContent = 'HSWS does not accept independent membership for ages 14-17. Children under 14 may be registered by a parent. Adults 18 and over may register independently.';
-    ageWarn.style.display = 'block';
-    ageWarn.style.color = 'var(--red)';
-    document.getElementById('hiddenMemberType').value = '';
-    submitBtn.disabled = true;
-  } else if (a >= 18 && a <= 64) {
-    typeDisplay.textContent = 'Adult';
-    feeDisplay.textContent  = '12.50 / month';
-    document.getElementById('hiddenMemberType').value = 'adult';
-    document.getElementById('hiddenMonthlyFee').value = '12.50';
-  } else if (a >= 65 && a <= 70) {
-    typeDisplay.textContent = 'Senior Citizen';
-    feeDisplay.textContent  = '8.00 / month';
-    document.getElementById('hiddenMemberType').value = 'senior_citizen';
-    document.getElementById('hiddenMonthlyFee').value = '8.00';
-  } else if (a > 70) {
-    typeDisplay.textContent = '$';
-    feeDisplay.textContent  = '$';
-    ageWarn.textContent = 'HSWS health and safety policy does not permit membership for persons over the age of 70.';
-    ageWarn.style.display = 'block';
-    ageWarn.style.color = 'var(--red)';
-    document.getElementById('hiddenMemberType').value = '';
-    submitBtn.disabled = true;
+    <div class="form-group">
+      <label>Monthly Fee (auto-calculated)</label>
+      <div style="padding:10px 12px;background:var(--grey-100);border-radius:8px" id="memberFeeDisplay"> Enter date of birth </div>
+    </div>
+    <div id="ageWarning" style="display:none;padding:12px;background:#FEE2E2;border-radius:8px;border-left:4px solid var(--red);margin-bottom:12px;font-size:14px"></div>
+  
+    <!-- Parent / Guardian: required only for dependent_child (&lt;14) -->
+    <div class="form-group" id="parentFieldGroup" style="display:none">
+      <label>Parent / Guardian Member <span style="color:var(--red)">*</span></label>
+      <div style="position:relative">
+        <input type="text" id="parentSearch" placeholder="Type parent's name to search" autocomplete="off" style="width:100%">
+        <input type="hidden" id="parentMemberId">
+        <div id="parentSuggestions"
+             style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--teal);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:500;box-shadow:0 8px 16px rgba(0,0,0,0.08)"></div>
+      </div>
+      <span class="form-error" id="parentError"></span>
+      <small style="color:var(--grey-500);margin-top:4px;display:block">
+        Search for an existing adult or senior member who will be responsible for payment.
+      </small>
+    </div>
+    <div class='form-group'><label>Status</label><select id='membership_status'><option>active</option><option>suspended</option><option>cancelled</option></select></div>
+  </div><div class='modal-footer'><button class='btn btn-secondary' onclick='closeForm()'>Cancel</button><button class='btn btn-primary' onclick='save()'>Save</button></div></div></div>
+  <div class='modal-overlay' id='viewM'><div class='modal'><div class='modal-header'><h2>Member Profile</h2></div><div class='modal-body' id='profile'></div><div class='modal-footer'><button class='btn btn-secondary' onclick="viewM.classList.remove('open')">Close</button></div></div></div>
+  <footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
+  <script>
+  const API='http://localhost:3000/api';let members=[];function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast ${t}`;const icon=t==='success'?'fa-check-circle':t==='error'?'fa-times-circle':'fa-exclamation-triangle';d.innerHTML=`<i class='fas ${icon}'></i><span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
+  async function apiCall(u,o={}){try{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}catch(e){showToast(e.message,'error');throw e;}}
+  function updateCounts(){
+    cTotal.textContent=members.length;
+    cAdult.textContent=members.filter(m=>m.member_type==='adult').length;
+    cSenior.textContent=members.filter(m=>m.member_type==='senior_citizen'||m.member_type==='over_70').length;
+    cChild.textContent=members.filter(m=>m.member_type==='child'||m.member_type==='dependent_child').length;
+    activeBadge.textContent=members.filter(m=>m.membership_status==='active').length;
   }
-}
-async function save(){
-  const memberType  = document.getElementById('hiddenMemberType').value;
-  const parentId    = document.getElementById('parentMemberId').value;
-  const parentInput = document.getElementById('parentSearch').value.trim();
-
-  if (!memberType) {
-    showToast('Please enter a valid date of birth to determine membership type.', 'error');
-    return;
+  function render(){
+    updateCounts();
+    let d=[...members];
+    if(statusF.value)d=d.filter(x=>x.membership_status===statusF.value);
+    if(typeF.value)d=d.filter(x=>x.member_type===typeF.value);
+    if(search.value){const q=search.value.toLowerCase();d=d.filter(x=>`${x.full_name} ${x.email}`.toLowerCase().includes(q));}
+    rows.innerHTML=d.map(x=>`<tr><td>${x.member_id}</td><td>${x.full_name}</td><td><span class='badge badge-${x.member_type}'>${x.member_type}</span></td><td>${x.city}</td><td>${x.email}</td><td>${x.phone}</td><td>${x.date_of_birth?.slice(0,10)}</td><td><span class='badge badge-${x.membership_status==='active'?'active':x.membership_status==='cancelled'?'overdue':'pending'}'>${x.membership_status}</span></td><td>${Number(x.monthly_fee || 0).toFixed(2)}</td><td><button class='btn btn-secondary btn-sm' onclick='edit(${x.member_id})'>Edit</button> <button class='btn btn-secondary btn-sm' onclick='view(${x.member_id})'>View</button> <button class='btn btn-danger btn-sm' onclick='del(${x.member_id})'>Delete</button></td></tr>`).join('')
   }
-  if (memberType === 'child') {
-    if (!parentId) {
-      const parentError = document.getElementById('parentError');
-      parentError.textContent = parentInput
-        ? 'Please select a parent from the search suggestions (click a name from the list).'
-        : 'A parent or guardian member must be selected for child members.';
-      parentError.style.display = 'block';
-      return;
+  async function refresh(){members=await apiCall(`${API}/members`);render();}
+  function openForm(){
+    member_id.value='';
+    mt.textContent='Add Member';
+    document.getElementById('parentFieldGroup').style.display='none';
+    document.getElementById('parentSearch').value='';
+    document.getElementById('parentMemberId').value='';
+    document.getElementById('ageWarning').style.display='none';
+    document.getElementById('hiddenMemberType').value='';
+    document.getElementById('hiddenMonthlyFee').value='';
+    document.getElementById('memberTypeDisplay').textContent=' Enter date of birth ';
+    document.getElementById('memberFeeDisplay').textContent=' Enter date of birth ';
+    m.classList.add('open');
+  } 
+  function closeForm(){m.classList.remove('open')}
+  function edit(id){const x=members.find(r=>r.member_id===id);for(const k of ['full_name','email','phone','address_line1','city','postcode','date_of_birth','membership_status'])window[k].value=(x[k]||'').toString().slice(0,10);member_id.value=id;mt.textContent='Edit Member';handleDob();if(x.member_type==='dependent_child'&&x.parent_member_id){document.getElementById('parentFieldGroup').style.display='block';document.getElementById('parentSearch').value=x.parent_name||'';document.getElementById('parentMemberId').value=x.parent_member_id;}m.classList.add('open')}
+  function age(d){const b=new Date(d);const t=new Date();let a=t.getFullYear()-b.getFullYear();const m=t.getMonth()-b.getMonth();if(m<0||(m===0&&t.getDate()<b.getDate()))a--;return a;}
+  function handleDob(){
+    const dob = new Date(date_of_birth.value);
+    const today = new Date();
+    let a = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) a--;
+  
+    const typeDisplay  = document.getElementById('memberTypeDisplay');
+    const feeDisplay   = document.getElementById('memberFeeDisplay');
+    const parentGroup  = document.getElementById('parentFieldGroup');
+    const ageWarn      = document.getElementById('ageWarning');
+    const submitBtn    = document.querySelector('#m .modal-footer .btn.btn-primary');
+  
+    ageWarn.style.display='none';
+    ageWarn.textContent='';
+    parentGroup.style.display='none';
+    if (!member_id.value) {
+      document.getElementById('parentSearch').value='';
+      document.getElementById('parentMemberId').value='';
+    }
+    submitBtn.disabled=false;
+  
+    if (Number.isNaN(a)) return;
+  
+    if (a < 14) {
+      typeDisplay.textContent = 'Dependent (under 14)';
+      feeDisplay.textContent  = '0.00 / month (guardian responsible)';
+      parentGroup.style.display = 'block';
+      document.getElementById('hiddenMemberType').value = 'dependent_child';
+      document.getElementById('hiddenMonthlyFee').value = '0.00';
+    } else if (a >= 14 && a <= 17) {
+      typeDisplay.textContent = 'Youth member (14–17)';
+      feeDisplay.textContent  = '6.00 / month';
+      document.getElementById('hiddenMemberType').value = 'child';
+      document.getElementById('hiddenMonthlyFee').value = '6.00';
+    } else if (a >= 18 && a <= 64) {
+      typeDisplay.textContent = 'Adult';
+      feeDisplay.textContent  = '12.50 / month';
+      document.getElementById('hiddenMemberType').value = 'adult';
+      document.getElementById('hiddenMonthlyFee').value = '12.50';
+    } else if (a >= 65 && a <= 70) {
+      typeDisplay.textContent = 'Senior citizen (65–70)';
+      feeDisplay.textContent  = '8.00 / month';
+      document.getElementById('hiddenMemberType').value = 'senior_citizen';
+      document.getElementById('hiddenMonthlyFee').value = '8.00';
+    } else if (a > 70) {
+      typeDisplay.textContent = 'Member over 70';
+      feeDisplay.textContent  = '8.00 / month';
+      ageWarn.textContent = 'Membership is allowed; bicycle rental is not permitted for renters over 70. E-scooter rental is allowed if age and safety rules are met.';
+      ageWarn.style.display = 'block';
+      ageWarn.style.color = 'var(--navy)';
+      document.getElementById('hiddenMemberType').value = 'over_70';
+      document.getElementById('hiddenMonthlyFee').value = '8.00';
     }
   }
-
-  const payload={full_name:full_name.value,email:email.value,phone:phone.value,address_line1:address_line1.value,city:city.value,postcode:postcode.value,date_of_birth:date_of_birth.value,membership_status:membership_status.value};
-  if(memberType==='child') payload.parent_member_id = parseInt(parentId,10);
-  if(member_id.value)await apiCall(`${API}/members/${member_id.value}`,{method:'PUT',body:JSON.stringify(payload)});else await apiCall(`${API}/members`,{method:'POST',body:JSON.stringify(payload)});
-  closeForm();showToast('Member saved');refresh();
-}
-async function view(id){
-  const mdata=await apiCall(`${API}/members/${id}`);
-  const rentals=await apiCall(`${API}/rentals`);
-  const mine=rentals.filter(r=>r.member_id===id);
-  const totalSpent=mine.reduce((a,r)=>a+(Number(r.total_cost)||0),0);
-  const bills=await apiCall(`${API}/bills`);
-  const myBills=bills.filter(b=>b.member_id===id);
-  profile.innerHTML=`<div class='card'><h3>${mdata.full_name}</h3><p>${mdata.email} - ${mdata.phone}</p><p><b>Type:</b> ${mdata.member_type}  <b>Status:</b> ${mdata.membership_status}</p><p><b>Parent:</b> ${mdata.parent_name||'-'}</p></div>
-  <div class='card'><h3>Children</h3>${(mdata.children||[]).map(c=>`<div>${c.full_name} (${c.member_type})</div>`).join('')||'<div>None</div>'}</div>
-  <div class='card'><h3>Rental Summary</h3><div>Total rentals: ${mine.length}</div><div>Total spend: ${totalSpent.toFixed(2)}</div></div>
-  <div class='card'><h3>Billing</h3>${myBills.map(b=>`<div>Bill #${b.bill_id}  ${b.status} ${b.total_amount} (paid ${b.total_paid})</div>`).join('')||'<div>No bills</div>'}</div>`;
-  viewM.classList.add('open');
-}
-async function del(id){
-  if(!confirm('Delete member?'))return;
-  try{
-    await apiCall(`${API}/members/${id}`,{method:'DELETE'});
-    showToast('Member deleted');
-    refresh();
-  }catch(err){
-    showToast('Cannot delete: member has active/overdue rentals or unpaid bills','error');
-  }
-}
-// Debounce helper
-function debounce(fn, delay) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
-}
-
-document.getElementById('parentSearch').addEventListener('input', debounce(async (e) => {
-  const query = e.target.value.trim();
-  const suggestions = document.getElementById('parentSuggestions');
-  const hiddenId    = document.getElementById('parentMemberId');
-  hiddenId.value = '';
-  document.getElementById('parentError').style.display = 'none';
-
-  if (query.length < 2) {
-    suggestions.style.display = 'none';
-    suggestions.innerHTML = '';
-    return;
-  }
-
-  try {
-    const results = await apiCall(
-      `http://localhost:3000/api/members?search=${encodeURIComponent(query)}&type=adult,senior_citizen`
-    );
-
-    suggestions.innerHTML = '';
-
-    if (results.length === 0) {
-      suggestions.innerHTML = `<div style="padding:12px 16px;color:var(--grey-500);font-size:13px">No adult or senior members found for "${query}"</div>`;
-      suggestions.style.display = 'block';
+  async function save(){
+    const memberType  = document.getElementById('hiddenMemberType').value;
+    const parentId    = document.getElementById('parentMemberId').value;
+    const parentInput = document.getElementById('parentSearch').value.trim();
+  
+    if (!memberType) {
+      showToast('Please enter a valid date of birth to determine membership type.', 'error');
       return;
     }
-
-    results.slice(0, 8).forEach(member => {
-      const item = document.createElement('div');
-      item.style.cssText = 'padding:10px 16px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--grey-200)';
-      item.innerHTML = `<div style="font-weight:600;color:var(--navy)">${member.full_name}</div>
-        <div style="font-size:12px;color:var(--grey-500)">${member.member_type === 'senior_citizen' ? 'Senior Citizen' : 'Adult'} - ${member.city} - ${member.email}</div>`;
-      item.addEventListener('mouseenter', () => item.style.background = 'var(--teal-pale)');
-      item.addEventListener('mouseleave', () => item.style.background = 'white');
-      item.addEventListener('click', () => {
-        document.getElementById('parentSearch').value  = member.full_name;
-        document.getElementById('parentMemberId').value = member.member_id;
-        suggestions.style.display = 'none';
-        suggestions.innerHTML = '';
-        document.getElementById('parentError').style.display = 'none';
+    if (memberType === 'dependent_child') {
+      if (!parentId) {
+        const parentError = document.getElementById('parentError');
+        parentError.textContent = parentInput
+          ? 'Please select a guardian from the search suggestions (click a name from the list).'
+          : 'A guardian member must be selected for dependents under 14.';
+        parentError.style.display = 'block';
+        return;
+      }
+    }
+  
+    const payload={full_name:full_name.value,email:email.value,phone:phone.value,address_line1:address_line1.value,city:city.value,postcode:postcode.value,date_of_birth:date_of_birth.value,membership_status:membership_status.value};
+    if(memberType==='dependent_child') payload.parent_member_id = parseInt(parentId,10);
+    if(member_id.value)await apiCall(`${API}/members/${member_id.value}`,{method:'PUT',body:JSON.stringify(payload)});else await apiCall(`${API}/members`,{method:'POST',body:JSON.stringify(payload)});
+    closeForm();showToast('Member saved');refresh();
+  }
+  async function view(id){
+    const mdata=await apiCall(`${API}/members/${id}`);
+    const rentals=await apiCall(`${API}/rentals`);
+    const mine=rentals.filter(r=>r.member_id===id);
+    const totalSpent=mine.reduce((a,r)=>a+(Number(r.total_cost)||0),0);
+    const bills=await apiCall(`${API}/bills`);
+    const myBills=bills.filter(b=>b.member_id===id);
+    profile.innerHTML=`<div class='card'><h3>${mdata.full_name}</h3><p>${mdata.email} - ${mdata.phone}</p><p><b>Type:</b> ${mdata.member_type}  <b>Status:</b> ${mdata.membership_status}</p><p><b>Parent:</b> ${mdata.parent_name||'-'}</p></div>
+    <div class='card'><h3>Children</h3>${(mdata.children||[]).map(c=>`<div>${c.full_name} (${c.member_type})</div>`).join('')||'<div>None</div>'}</div>
+    <div class='card'><h3>Rental Summary</h3><div>Total rentals: ${mine.length}</div><div>Total spend: ${totalSpent.toFixed(2)}</div></div>
+    <div class='card'><h3>Billing</h3>${myBills.map(b=>`<div>Bill #${b.bill_id}  ${b.status} ${b.total_amount} (paid ${b.total_paid})</div>`).join('')||'<div>No bills</div>'}</div>`;
+    viewM.classList.add('open');
+  }
+  async function del(id){
+    if(!confirm('Delete member?'))return;
+    try{
+      await apiCall(`${API}/members/${id}`,{method:'DELETE'});
+      showToast('Member deleted');
+      refresh();
+    }catch(err){
+      showToast('Cannot delete: member has active/overdue rentals or unpaid bills','error');
+    }
+  }
+  // Debounce helper
+  function debounce(fn, delay) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+  }
+  
+  document.getElementById('parentSearch').addEventListener('input', debounce(async (e) => {
+    const query = e.target.value.trim();
+    const suggestions = document.getElementById('parentSuggestions');
+    const hiddenId    = document.getElementById('parentMemberId');
+    hiddenId.value = '';
+    document.getElementById('parentError').style.display = 'none';
+  
+    if (query.length < 2) {
+      suggestions.style.display = 'none';
+      suggestions.innerHTML = '';
+      return;
+    }
+  
+    try {
+      const results = await apiCall(
+        `${API}/members?search=${encodeURIComponent(query)}&type=adult,senior_citizen,over_70`
+      );
+  
+      suggestions.innerHTML = '';
+  
+      if (results.length === 0) {
+        suggestions.innerHTML = `<div style="padding:12px 16px;color:var(--grey-500);font-size:13px">No eligible guardian (adult / senior / over 70) found for "${query}"</div>`;
+        suggestions.style.display = 'block';
+        return;
+      }
+  
+      results.slice(0, 8).forEach(member => {
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:10px 16px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--grey-200)';
+        item.innerHTML = `<div style="font-weight:600;color:var(--navy)">${member.full_name}</div>
+          <div style="font-size:12px;color:var(--grey-500)">${member.member_type === 'senior_citizen' ? 'Senior' : member.member_type === 'over_70' ? 'Over 70' : 'Adult'} - ${member.city} - ${member.email}</div>`;
+        item.addEventListener('mouseenter', () => item.style.background = 'var(--teal-pale)');
+        item.addEventListener('mouseleave', () => item.style.background = 'white');
+        item.addEventListener('click', () => {
+          document.getElementById('parentSearch').value  = member.full_name;
+          document.getElementById('parentMemberId').value = member.member_id;
+          suggestions.style.display = 'none';
+          suggestions.innerHTML = '';
+          document.getElementById('parentError').style.display = 'none';
+        });
+        suggestions.appendChild(item);
       });
-      suggestions.appendChild(item);
-    });
-
-    suggestions.style.display = 'block';
-  } catch (e) {}
-}, 300));
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('#parentSearch') && !e.target.closest('#parentSuggestions')) {
-    document.getElementById('parentSuggestions').style.display = 'none';
-  }
-});
-
-date_of_birth.addEventListener('change',handleDob);
-[statusF,typeF,search].forEach(el=>el.addEventListener('input',render));
-refresh();document.querySelectorAll('.nav-links a').forEach(l=>{if(l.href===window.location.href)l.classList.add('active')});document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
-</script></body></html>
+  
+      suggestions.style.display = 'block';
+    } catch (e) {}
+  }, 300));
+  
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#parentSearch') && !e.target.closest('#parentSuggestions')) {
+      document.getElementById('parentSuggestions').style.display = 'none';
+    }
+  });
+  
+  date_of_birth.addEventListener('change',handleDob);
+  [statusF,typeF,search].forEach(el=>el.addEventListener('input',render));
+  refresh();
+  document.querySelectorAll('.dropdown > a').forEach(el=>{el.addEventListener('click',e=>{if(window.innerWidth<768){e.preventDefault();el.parentElement.classList.toggle('open');}});});
+  document.querySelectorAll('.nav-links a[href]').forEach(l=>{const h=l.getAttribute('href');if(h&&h!=='#'&&l.href===window.location.href)l.classList.add('active');});
+  document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
+  </script></body></html>
+  
