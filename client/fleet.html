@@ -22,15 +22,30 @@
       </button>
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html">Home</a></li>
-        <li><a href="terminals.html">Terminals</a></li>
-        <li><a href="fleet.html">Fleet</a></li>
-        <li><a href="members.html">Members</a></li>
-        <li><a href="rentals.html">Rentals</a></li>
-        <li><a href="maintenance.html">Maintenance</a></li>
-        <li><a href="sponsors.html">Sponsors</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li class="dropdown">
+          <a href="#">Operations <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="rentals.html">Rentals</a></li>
+            <li><a href="fleet.html">Fleet</a></li>
+            <li><a href="terminals.html">Terminals</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">Management <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="members.html">Members</a></li>
+            <li><a href="maintenance.html">Maintenance</a></li>
+            <li><a href="reports.html">Reports</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">System <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="sponsors.html">Sponsors</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
 
@@ -275,6 +290,15 @@
         return data;
       }
 
+      const SPONSOR_LOGO_FALLBACK = 'https://placehold.co/160x40/64748b/ffffff/png?text=BSRF';
+      function escAttr(s) {
+        return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      }
+      function sponsorFleetLogo(url, name) {
+        if (!url) return '';
+        return `<img src="${escAttr(url)}" alt="${escAttr(name)} logo" class="sponsor-logo" loading="lazy" onerror="this.onerror=null;this.src='${SPONSOR_LOGO_FALLBACK}'">`;
+      }
+
       function applyFilters(data) {
         const type = document.getElementById('filterType').value;
         const status = document.getElementById('filterStatus').value;
@@ -307,7 +331,7 @@
             ? `${row.make} ${row.model}`
             : `${row.colour} ${row.model}`;
           const sponsorCell = row.sponsor_name
-            ? `<span class="badge badge-active">??? ${row.sponsor_name}</span>`
+            ? `<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-width:220px">${sponsorFleetLogo(row.sponsor_logo_url, row.sponsor_name)}<span class="badge badge-active">${row.logo_placement ? row.logo_placement + ' · ' : ''}${row.sponsor_name}</span></div>`
             : `<span style="color:var(--grey-500)">Unsponsored</span>`;
 
           const tr = document.createElement('tr');
@@ -542,7 +566,15 @@
         document.getElementById('filterStatus').addEventListener('change', () => renderFleet(applyFilters(allFleet)));
         document.getElementById('filterCity').addEventListener('change', () => renderFleet(applyFilters(allFleet)));
         document.getElementById('searchInput').addEventListener('input', () => renderFleet(applyFilters(allFleet)));
-        document.querySelectorAll('.nav-links a').forEach((a) => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.querySelectorAll('.dropdown > a').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (window.innerWidth < 768) { e.preventDefault(); el.parentElement.classList.toggle('open'); }
+          });
+        });
+        document.querySelectorAll('.nav-links a[href]').forEach((a) => {
+          const h = a.getAttribute('href');
+          if (h && h !== '#' && a.href === window.location.href) a.classList.add('active');
+        });
         document.getElementById('navToggle').addEventListener('click', () => { document.getElementById('navLinks').classList.toggle('open'); });
       });
     </script>

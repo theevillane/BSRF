@@ -22,15 +22,30 @@
       </button>
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html">Home</a></li>
-        <li><a href="terminals.html">Terminals</a></li>
-        <li><a href="fleet.html">Fleet</a></li>
-        <li><a href="members.html">Members</a></li>
-        <li><a href="rentals.html">Rentals</a></li>
-        <li><a href="maintenance.html">Maintenance</a></li>
-        <li><a href="sponsors.html">Sponsors</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li class="dropdown">
+          <a href="#">Operations <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="rentals.html">Rentals</a></li>
+            <li><a href="fleet.html">Fleet</a></li>
+            <li><a href="terminals.html">Terminals</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">Management <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="members.html">Members</a></li>
+            <li><a href="maintenance.html">Maintenance</a></li>
+            <li><a href="reports.html">Reports</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">System <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="sponsors.html">Sponsors</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
 
@@ -58,6 +73,7 @@
         <table class="data-table">
           <thead>
             <tr>
+              <th>Logo</th>
               <th>Company</th>
               <th>Contract Ref</th>
               <th>Period</th>
@@ -77,7 +93,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Company</th>
+              <th>Sponsor</th>
               <th>Asset Type</th>
               <th>Asset</th>
               <th>Logo Placement</th>
@@ -112,6 +128,7 @@
             <div class="form-group"><label>Annual Fee (£)</label><input id="annual_fee" type="number" min="0" step="0.01" /></div>
             <div class="form-group"><label>Contract Ref</label><input id="contract_ref" placeholder="e.g. SPON-2026-003" /></div>
           </div>
+          <div class="form-group"><label>Logo image URL (https, .png / .jpg / .svg)</label><input id="logo_url" type="url" placeholder="https://…" /></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" onclick="closeSponsorModal()">Cancel</button>
@@ -152,8 +169,16 @@
 
     <script>
       const API = 'http://localhost:3000/api';
+      const SPONSOR_LOGO_FALLBACK = 'https://placehold.co/160x40/64748b/ffffff/png?text=BSRF';
       let sponsors = [];
       let links = [];
+
+      function sponsorLogoImg(url, altName) {
+        const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const src = esc(url || '');
+        const alt = esc((altName || 'Sponsor') + ' logo');
+        return `<img src="${src}" alt="${alt}" class="sponsor-logo" loading="lazy" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='${SPONSOR_LOGO_FALLBACK}'}'">`;
+      }
 
       function showToast(message, type = 'success') {
         const container = document.getElementById('toast-container');
@@ -189,6 +214,7 @@
           const badge = s.contract_status === 'expired' ? 'badge-overdue' : s.contract_status === 'expiring_soon' ? 'badge-pending' : 'badge-active';
           const days = typeof s.days_remaining === 'number' ? s.days_remaining : '';
           return `<tr>
+            <td style="vertical-align:middle;width:100px">${sponsorLogoImg(s.logo_url, s.sponsor_name)}</td>
             <td><b>${s.company_name}</b><div style="color:var(--grey-500);font-size:12px">${s.sponsor_name}</div></td>
             <td><code>${s.contract_ref}</code></td>
             <td>${String(s.start_date).slice(0,10)} → ${String(s.end_date).slice(0,10)}</td>
@@ -208,7 +234,7 @@
         linkRows.innerHTML = links.map(l => {
           const badge = l.contract_status === 'expired' ? 'badge-overdue' : l.contract_status === 'expiring_soon' ? 'badge-pending' : 'badge-active';
           return `<tr>
-            <td><b>${l.company_name}</b></td>
+            <td style="vertical-align:middle"><div style="display:flex;align-items:center;gap:10px">${l.sponsor_logo_url ? sponsorLogoImg(l.sponsor_logo_url, l.sponsor_name || l.company_name) : ''}<div><b>${l.company_name}</b></div></div></td>
             <td><span class="badge badge-active">${l.asset_type}</span></td>
             <td>${l.asset_description || l.asset_id}</td>
             <td>${l.logo_placement || '-'}</td>
@@ -237,7 +263,7 @@
       function openSponsorModal() {
         sponsor_id.value = '';
         sponsorModalTitle.textContent = 'Add Sponsor';
-        ['sponsor_name','company_name','contact_person','phone','address','start_date','end_date','annual_fee','contract_ref'].forEach(id => document.getElementById(id).value = '');
+        ['sponsor_name','company_name','contact_person','phone','address','start_date','end_date','annual_fee','contract_ref','logo_url'].forEach(id => document.getElementById(id).value = '');
         sponsorModal.classList.add('open');
       }
       function closeSponsorModal() { sponsorModal.classList.remove('open'); }
@@ -255,6 +281,7 @@
         end_date.value = String(s.end_date).slice(0,10);
         annual_fee.value = s.annual_fee || '';
         contract_ref.value = s.contract_ref || '';
+        logo_url.value = s.logo_url || '';
         sponsorModal.classList.add('open');
       }
 
@@ -268,10 +295,11 @@
           start_date: start_date.value,
           end_date: end_date.value,
           annual_fee: parseFloat(annual_fee.value || '0'),
-          contract_ref: contract_ref.value.trim()
+          contract_ref: contract_ref.value.trim(),
+          logo_url: logo_url.value.trim()
         };
-        if (!payload.sponsor_name || !payload.company_name || !payload.contact_person || !payload.phone || !payload.address || !payload.start_date || !payload.end_date || !payload.contract_ref) {
-          return showToast('Please complete all required sponsor fields.', 'error');
+        if (!payload.sponsor_name || !payload.company_name || !payload.contact_person || !payload.phone || !payload.address || !payload.start_date || !payload.end_date || !payload.contract_ref || !payload.logo_url) {
+          return showToast('Please complete all required sponsor fields (including logo URL).', 'error');
         }
         try {
           if (sponsor_id.value) {
@@ -335,7 +363,15 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
         await refreshAll();
-        document.querySelectorAll('.nav-links a').forEach((a) => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.querySelectorAll('.dropdown > a').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (window.innerWidth < 768) { e.preventDefault(); el.parentElement.classList.toggle('open'); }
+          });
+        });
+        document.querySelectorAll('.nav-links a[href]').forEach((a) => {
+          const h = a.getAttribute('href');
+          if (h && h !== '#' && a.href === window.location.href) a.classList.add('active');
+        });
         document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
       });
     </script>

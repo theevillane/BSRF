@@ -1,99 +1,124 @@
 <!doctype html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0'><title>Rentals</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');</style><link rel='stylesheet' href='css/style.css'></head><body>
-<nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li><a href='terminals.html'>Terminals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='members.html'>Members</a></li><li><a href='rentals.html'>Rentals</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='sponsors.html'>Sponsors</a></li><li><a href='reports.html'>Reports</a></li><li><a href='about.html'>About</a></li><li><a href='contact.html'>Contact</a></li></ul></nav>
-<section class='hero'><h1>Rental Transactions <span id='activeCount' class='badge badge-active'>0</span> <span id='overdueCount' class='badge badge-overdue'>0</span></h1></section>
-<div class='container'>
-  <div class='grid cards-4' style='margin-bottom:12px'>
-    <div class='card'>Total (this month) <b id='mTotal'>0</b></div>
-    <div class='card'>Revenue (this month) <b id='mRev'>0.00</b></div>
-    <div class='card'>Avg Duration <b id='mAvg'>0 min</b></div>
-    <div class='card'>Overdue <b id='mOver'>0</b></div>
+  <nav class='navbar'><div class='nav-brand'><i class='fas fa-bicycle'></i><span>BSRF</span><small>Hampshire</small></div><button class='nav-toggle' id='navToggle' aria-label='Toggle navigation'><i class='fas fa-bars'></i></button><ul class='nav-links' id='navLinks'><li><a href='index.html'>Home</a></li><li class='dropdown'><a href='#'>Operations <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='rentals.html'>Rentals</a></li><li><a href='fleet.html'>Fleet</a></li><li><a href='terminals.html'>Terminals</a></li></ul></li><li class='dropdown'><a href='#'>Management <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='members.html'>Members</a></li><li><a href='maintenance.html'>Maintenance</a></li><li><a href='reports.html'>Reports</a></li></ul></li><li class='dropdown'><a href='#'>System <i class='fas fa-chevron-down'></i></a><ul class='dropdown-menu'><li><a href='sponsors.html'>Sponsors</a></li><li><a href='about.html'>About</a></li><li><a href='contact.html'>Contact</a></li></ul></li></ul></nav>
+  <section class='hero'><h1>Rental Transactions <span id='activeCount' class='badge badge-active'>0</span> <span id='overdueCount' class='badge badge-overdue'>0</span></h1></section>
+  <div class='container'>
+    <div class='grid cards-4' style='margin-bottom:12px'>
+      <div class='card'>Total (this month) <b id='mTotal'>0</b></div>
+      <div class='card'>Revenue (this month) <b id='mRev'>0.00</b></div>
+      <div class='card'>Avg Duration <b id='mAvg'>0 min</b></div>
+      <div class='card'>Overdue <b id='mOver'>0</b></div>
+    </div>
+    <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
+      <select id='statusF'><option value=''>All</option><option>active</option><option>completed</option><option>overdue</option></select>
+      <select id='userF'><option value=''>All Users</option><option value='member'>Member</option><option value='visitor'>Visitor</option></select>
+      <select id='assetF'><option value=''>All Assets</option><option value='bicycle'>Bicycle</option><option value='scooter'>Scooter</option></select>
+      <input id='fromD' type='date'><input id='toD' type='date'>
+      <button class='btn btn-primary' onclick='openStart()'>Start Rental</button>
+    </div>
+    <div class='table-wrapper'><table class='data-table'><thead><tr><th>ID</th><th>User</th><th>Asset</th><th>Pickup Terminal</th><th>Pickup Time</th><th>Return Dock</th><th>Return Time</th><th>Duration</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead><tbody id='rows'></tbody></table></div>
   </div>
-  <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
-    <select id='statusF'><option value=''>All</option><option>active</option><option>completed</option><option>overdue</option></select>
-    <select id='userF'><option value=''>All Users</option><option value='member'>Member</option><option value='visitor'>Visitor</option></select>
-    <select id='assetF'><option value=''>All Assets</option><option value='bicycle'>Bicycle</option><option value='scooter'>Scooter</option></select>
-    <input id='fromD' type='date'><input id='toD' type='date'>
-    <button class='btn btn-primary' onclick='openStart()'>Start Rental</button>
-  </div>
-  <div class='table-wrapper'><table class='data-table'><thead><tr><th>ID</th><th>User</th><th>Asset</th><th>Pickup Terminal</th><th>Pickup Time</th><th>Return Dock</th><th>Return Time</th><th>Duration</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead><tbody id='rows'></tbody></table></div>
-</div>
-<div class='modal-overlay' id='startM'><div class='modal'><div class='modal-header'><h2>Start Rental</h2></div><div class='modal-body'>
-  <div class='form-group'><label>User Type</label><select id='userType'><option value='member'>Member</option><option value='visitor'>Visitor</option></select></div>
-  <div class='form-group' id='memberSearchWrap'><label>Member Search</label><input id='memberSearch' placeholder='Search member name/email'></div>
-  <div class='form-group'><label>User</label><select id='userId'></select></div>
-  <div class='form-group'><label>Asset Type</label><select id='assetType'><option value='bicycle'>Bicycle</option><option value='scooter'>Scooter</option></select></div>
-  <div class='form-group'><label>Terminal</label><select id='terminalId'></select></div>
-  <div class='form-group'><label>Asset</label><select id='assetId'></select></div>
-  <div class='card' id='ageWarning' style='display:none'></div>
-</div><div class='modal-footer'><button class='btn btn-secondary' onclick="startM.classList.remove('open')">Cancel</button><button class='btn btn-primary' onclick='startRental()'>Start</button></div></div></div>
-<div class='modal-overlay' id='completeM'><div class='modal'><div class='modal-header'><h2>Complete Rental</h2></div><div class='modal-body'><input id='completeId' type='hidden'><div class='card' id='completeSummary'></div><div class='form-group'><label>Return Dock</label><select id='dockId'></select></div><div class='card' id='estimate'></div></div><div class='modal-footer'><button class='btn btn-secondary' onclick="completeM.classList.remove('open')">Cancel</button><button class='btn btn-primary' onclick='completeRental()'>Complete</button></div></div></div>
-<footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
-<script>
-const API='http://localhost:3000/api';let rentals=[],members=[],visitors=[],fleet=[],terminals=[],docks=[];
-function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast ${t}`;d.innerHTML=`<span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
-async function apiCall(u,o={}){try{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}catch(e){showToast(e.message,'error');throw e;}}
-function inRange(dt){
-  if(fromD.value && new Date(dt) < new Date(fromD.value)) return false;
-  if(toD.value && new Date(dt) > new Date(toD.value+'T23:59:59')) return false;
-  return true;
-}
-function updateSummary(){
-  const now=new Date(); const m=now.getMonth(); const y=now.getFullYear();
-  const thisMonth=rentals.filter(r=>{const d=new Date(r.pickup_datetime);return d.getMonth()===m && d.getFullYear()===y;});
-  const rev=thisMonth.reduce((a,r)=>a+(Number(r.total_cost)|0),0);
-  const avg=thisMonth.filter(r=>r.duration_minutes).reduce((a,r)=>a+Number(r.duration_minutes),0)/(thisMonth.filter(r=>r.duration_minutes).length||1);
-  mTotal.textContent=thisMonth.length;
-  mRev.textContent=''+rev.toFixed(2);
-  mAvg.textContent=Math.round(avg)+' min';
-  mOver.textContent=rentals.filter(r=>r.status==='overdue').length;
-  activeCount.textContent=rentals.filter(r=>r.status==='active').length;
-  overdueCount.textContent=rentals.filter(r=>r.status==='overdue').length;
-}
-function render(){
-  updateSummary();
-  let d=[...rentals];
-  if(statusF.value)d=d.filter(x=>x.status===statusF.value);
-  if(userF.value)d=d.filter(x=>x.user_type===userF.value);
-  if(assetF.value)d=d.filter(x=>x.asset_type===assetF.value);
-  d=d.filter(x=>inRange(x.pickup_datetime));
-  rows.innerHTML=d.map(x=>`<tr><td>${x.rental_id}</td><td>${x.user_name} <span class='badge badge-${x.user_type==='member'?'active':'pending'}'>${x.user_type}</span></td><td>${x.asset_description} <span class='badge badge-active'>${x.asset_type}</span></td><td>${x.pickup_terminal_name}</td><td>${new Date(x.pickup_datetime).toLocaleString()}</td><td>${x.return_dock_name|'-'}</td><td>${x.return_datetime?new Date(x.return_datetime).toLocaleString():'-'}</td><td>${x.duration_minutes||'-'}</td><td>${x.total_cost?(''+Number(x.total_cost).toFixed(2)):'-'}</td><td><span class='badge badge-${x.status}'>${x.status}</span></td><td>${x.status==='active'?`<button class='btn btn-primary btn-sm' onclick='openComplete(${x.rental_id})'>Complete</button> <button class='btn btn-danger btn-sm' onclick='markOverdue(${x.rental_id})'>Mark Overdue</button>`:''}</td></tr>`).join('')
-}
-async function refresh(){[rentals,members,visitors,fleet,terminals,docks]=await Promise.all([apiCall(`${API}/rentals`),apiCall(`${API}/members`),apiCall(`${API}/visitors`),apiCall(`${API}/fleet`),apiCall(`${API}/terminals`),apiCall(`${API}/docks`)]);render();terminalId.innerHTML=terminals.map(t=>`<option value='${t.terminal_id}'>${t.terminal_name}</option>`).join('');dockId.innerHTML=docks.map(d=>`<option value='${d.dock_id}'>${d.dock_name} (${d.terminal_name})</option>`).join('');populateUsers();populateAssets();}
-function openStart(){startM.classList.add('open');memberSearch.value='';ageWarning.style.display='none'} 
-function populateUsers(){
-  const src=userType.value==='member'?members:visitors;
-  const q=(memberSearch.value||'').toLowerCase();
-  const list=userType.value==='member' && q?src.filter(m=>`${m.full_name} ${m.email}`.toLowerCase().includes(q)):src;
-  userId.innerHTML=list.map(u=>`<option value='${u.member_id||u.visitor_id}'>${u.full_name}</option>`).join('');
-}
-function populateAssets(){
-  const list=fleet.filter(f=>f.asset_type===assetType.value&&f.status==='available'&&String(f.terminal_id)===terminalId.value);
-  assetId.innerHTML=list.map(a=>`<option value='${a.asset_id}'>#${a.asset_id} - ${a.make||a.colour||''} ${a.model}</option>`).join('');
-}
-function showAgeWarning(){
-  if(userType.value!=='member'){ageWarning.style.display='none';return;}
-  const id=+userId.value;
-  const m=members.find(x=>x.member_id===id);
-  if(!m){ageWarning.style.display='none';return;}
-  if(m.member_type==='child'){ageWarning.style.display='block';ageWarning.textContent='Warning: child members cannot rent any asset (server will reject).';return;}
-  ageWarning.style.display='none';
-}
-async function startRental(){await apiCall(`${API}/rentals/start`,{method:'POST',body:JSON.stringify({userType:userType.value,userId:+userId.value,assetType:assetType.value,assetId:+assetId.value,terminalId:+terminalId.value})});startM.classList.remove('open');showToast('Rental started');refresh();}
-function openComplete(id){
-  completeId.value=id;
-  const r=rentals.find(x=>x.rental_id===id);
-  completeSummary.innerHTML=`<b>${r.user_name}</b>  ${r.asset_description}<br><small>Pickup: ${new Date(r.pickup_datetime).toLocaleString()}</small>`;
-  estimate.textContent='Estimated cost updates at completion.';
-  completeM.classList.add('open')
-}
-async function completeRental(){
-  await apiCall(`${API}/rentals/${completeId.value}/complete`,{method:'PUT',body:JSON.stringify({dockId:+dockId.value})});
-  completeM.classList.remove('open');showToast('Rental completed');refresh();
-}
-async function markOverdue(id){if(!confirm('Mark as overdue?'))return;await apiCall(`${API}/rentals/${id}/overdue`,{method:'PUT'});showToast('Rental marked overdue','warning');refresh();}
-[userType,assetType,terminalId].forEach(el=>el.addEventListener('change',()=>{if(el===userType)populateUsers();if(el!==userType)populateAssets();showAgeWarning()}));
-memberSearch.addEventListener('input',populateUsers);
-[statusF,userF,assetF,fromD,toD].forEach(el=>el.addEventListener('input',render));
-userId.addEventListener('change',showAgeWarning);
-refresh();document.querySelectorAll('.nav-links a').forEach(l=>{if(l.href===window.location.href)l.classList.add('active')});document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
-</script></body></html>
+  <div class='modal-overlay' id='startM'><div class='modal'><div class='modal-header'><h2>Start Rental</h2></div><div class='modal-body'>
+    <div class='form-group'><label>User Type</label><select id='userType'><option value='member'>Member</option><option value='visitor'>Visitor</option></select></div>
+    <div class='form-group' id='memberSearchWrap'><label>Member Search</label><input id='memberSearch' placeholder='Search member name/email'></div>
+    <div class='form-group'><label>User</label><select id='userId'></select></div>
+    <div class='form-group'><label>Asset Type</label><select id='assetType'><option value='bicycle'>Bicycle</option><option value='scooter'>Scooter</option></select></div>
+    <div class='form-group'><label>Terminal</label><select id='terminalId'></select></div>
+    <div class='form-group'><label>Asset</label><select id='assetId'></select></div>
+    <div class='card' id='ageWarning' style='display:none'></div>
+  </div><div class='modal-footer'><button class='btn btn-secondary' onclick="startM.classList.remove('open')">Cancel</button><button class='btn btn-primary' onclick='startRental()'>Start</button></div></div></div>
+  <div class='modal-overlay' id='completeM'><div class='modal'><div class='modal-header'><h2>Complete Rental</h2></div><div class='modal-body'><input id='completeId' type='hidden'><div class='card' id='completeSummary'></div><div class='form-group'><label>Return Dock</label><select id='dockId'></select></div><div class='card' id='estimate'></div></div><div class='modal-footer'><button class='btn btn-secondary' onclick="completeM.classList.remove('open')">Cancel</button><button class='btn btn-primary' onclick='completeRental()'>Complete</button></div></div></div>
+  <footer> 2026 Bicycle Scooter Rental Facility | Hampshire Social Welfare Service | University of Portsmouth</footer><div id='toast-container'></div>
+  <script>
+  const API='http://localhost:3000/api';let rentals=[],members=[],visitors=[],fleet=[],terminals=[],docks=[];
+  function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast ${t}`;d.innerHTML=`<span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
+  async function apiCall(u,o={}){try{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}catch(e){showToast(e.message,'error');throw e;}}
+  function inRange(dt){
+    if(fromD.value && new Date(dt) < new Date(fromD.value)) return false;
+    if(toD.value && new Date(dt) > new Date(toD.value+'T23:59:59')) return false;
+    return true;
+  }
+  function updateSummary(){
+    const now=new Date(); const m=now.getMonth(); const y=now.getFullYear();
+    const thisMonth=rentals.filter(r=>{const d=new Date(r.pickup_datetime);return d.getMonth()===m && d.getFullYear()===y;});
+    const rev=thisMonth.reduce((a,r)=>a+(Number(r.total_cost)|0),0);
+    const avg=thisMonth.filter(r=>r.duration_minutes).reduce((a,r)=>a+Number(r.duration_minutes),0)/(thisMonth.filter(r=>r.duration_minutes).length||1);
+    mTotal.textContent=thisMonth.length;
+    mRev.textContent=''+rev.toFixed(2);
+    mAvg.textContent=Math.round(avg)+' min';
+    mOver.textContent=rentals.filter(r=>r.status==='overdue').length;
+    activeCount.textContent=rentals.filter(r=>r.status==='active').length;
+    overdueCount.textContent=rentals.filter(r=>r.status==='overdue').length;
+  }
+  function render(){
+    updateSummary();
+    let d=[...rentals];
+    if(statusF.value)d=d.filter(x=>x.status===statusF.value);
+    if(userF.value)d=d.filter(x=>x.user_type===userF.value);
+    if(assetF.value)d=d.filter(x=>x.asset_type===assetF.value);
+    d=d.filter(x=>inRange(x.pickup_datetime));
+    rows.innerHTML=d.map(x=>`<tr><td>${x.rental_id}</td><td>${x.user_name} <span class='badge badge-${x.user_type==='member'?'active':'pending'}'>${x.user_type}</span></td><td>${x.asset_description} <span class='badge badge-active'>${x.asset_type}</span></td><td>${x.pickup_terminal_name}</td><td>${new Date(x.pickup_datetime).toLocaleString()}</td><td>${x.return_dock_name??'-'}</td><td>${x.return_datetime?new Date(x.return_datetime).toLocaleString():'-'}</td><td>${x.duration_minutes||'-'}</td><td>${x.total_cost?(''+Number(x.total_cost).toFixed(2)):'-'}</td><td><span class='badge badge-${x.status}'>${x.status}</span></td><td>${x.status==='active'?`<button class='btn btn-primary btn-sm' onclick='openComplete(${x.rental_id})'>Complete</button> <button class='btn btn-danger btn-sm' onclick='markOverdue(${x.rental_id})'>Mark Overdue</button>`:''}</td></tr>`).join('')
+  }
+  async function refresh(){[rentals,members,visitors,fleet,terminals,docks]=await Promise.all([apiCall(`${API}/rentals`),apiCall(`${API}/members`),apiCall(`${API}/visitors`),apiCall(`${API}/fleet`),apiCall(`${API}/terminals`),apiCall(`${API}/docks`)]);render();terminalId.innerHTML=terminals.map(t=>`<option value='${t.terminal_id}'>${t.terminal_name}</option>`).join('');dockId.innerHTML=docks.map(d=>`<option value='${d.dock_id}'>${d.dock_name} (${d.terminal_name})</option>`).join('');populateUsers();populateAssets();}
+  function openStart(){startM.classList.add('open');memberSearch.value='';ageWarning.style.display='none'} 
+  function populateUsers(){
+    const src=userType.value==='member'?members:visitors;
+    const q=(memberSearch.value||'').toLowerCase();
+    const list=userType.value==='member' && q?src.filter(m=>`${m.full_name} ${m.email}`.toLowerCase().includes(q)):src;
+    userId.innerHTML=list.map(u=>`<option value='${u.member_id||u.visitor_id}'>${u.full_name}</option>`).join('');
+  }
+  function populateAssets(){
+    const list=fleet.filter(f=>f.asset_type===assetType.value&&f.status==='available'&&String(f.terminal_id)===terminalId.value);
+    assetId.innerHTML=list.map(a=>`<option value='${a.asset_id}'>#${a.asset_id} - ${a.make||a.colour||''} ${a.model}</option>`).join('');
+  }
+  function ageFromDobStr(dobStr){
+    if(!dobStr)return null;
+    const b=new Date(dobStr);const t=new Date();
+    let a=t.getFullYear()-b.getFullYear();
+    const mo=t.getMonth()-b.getMonth();
+    if(mo<0||(mo===0&&t.getDate()<b.getDate()))a--;
+    return a;
+  }
+  function showAgeWarning(){
+    ageWarning.style.display='none';
+    const isBike=assetType.value==='bicycle';
+    const isScooter=assetType.value==='scooter';
+    if(userType.value==='visitor'){
+      const v=visitors.find(x=>x.visitor_id===+userId.value);
+      if(!v||!v.date_of_birth)return;
+      const age=ageFromDobStr(v.date_of_birth);
+      if(age===null)return;
+      if(isBike&&age>70){ageWarning.style.display='block';ageWarning.textContent='Bicycle rental is not permitted for renters over 70.';return;}
+      if(isScooter&&age<14){ageWarning.style.display='block';ageWarning.textContent='E-scooter rental requires the renter to be at least 14.';return;}
+      return;
+    }
+    const m=members.find(x=>x.member_id===+userId.value);
+    if(!m)return;
+    const age=ageFromDobStr(m.date_of_birth);
+    if(age===null)return;
+    if(isScooter&&age<14){ageWarning.style.display='block';ageWarning.textContent='E-scooter rental requires age 14+ (dependents under 14 cannot rent scooters).';return;}
+    if(isBike&&age>70){ageWarning.style.display='block';ageWarning.textContent='Bicycle rental is not permitted for renters over 70.';return;}
+    if(isBike&&age<14&&!m.parent_member_id){ageWarning.style.display='block';ageWarning.textContent='Dependents under 14 may rent bicycles only with a guardian-linked account (parent on file).';return;}
+  }
+  async function startRental(){await apiCall(`${API}/rentals/start`,{method:'POST',body:JSON.stringify({userType:userType.value,userId:+userId.value,assetType:assetType.value,assetId:+assetId.value,terminalId:+terminalId.value})});startM.classList.remove('open');showToast('Rental started');refresh();}
+  function openComplete(id){
+    completeId.value=id;
+    const r=rentals.find(x=>x.rental_id===id);
+    completeSummary.innerHTML=`<b>${r.user_name}</b>  ${r.asset_description}<br><small>Pickup: ${new Date(r.pickup_datetime).toLocaleString()}</small>`;
+    estimate.textContent='Estimated cost updates at completion.';
+    completeM.classList.add('open')
+  }
+  async function completeRental(){
+    await apiCall(`${API}/rentals/${completeId.value}/complete`,{method:'PUT',body:JSON.stringify({dockId:+dockId.value})});
+    completeM.classList.remove('open');showToast('Rental completed');refresh();
+  }
+  async function markOverdue(id){if(!confirm('Mark as overdue?'))return;await apiCall(`${API}/rentals/${id}/overdue`,{method:'PUT'});showToast('Rental marked overdue','warning');refresh();}
+  [userType,assetType,terminalId].forEach(el=>el.addEventListener('change',()=>{if(el===userType)populateUsers();if(el!==userType)populateAssets();showAgeWarning()}));
+  memberSearch.addEventListener('input',populateUsers);
+  [statusF,userF,assetF,fromD,toD].forEach(el=>el.addEventListener('input',render));
+  userId.addEventListener('change',showAgeWarning);
+  refresh();
+  document.querySelectorAll('.dropdown > a').forEach(el=>{el.addEventListener('click',e=>{if(window.innerWidth<768){e.preventDefault();el.parentElement.classList.toggle('open');}});});
+  document.querySelectorAll('.nav-links a[href]').forEach(l=>{const h=l.getAttribute('href');if(h&&h!=='#'&&l.href===window.location.href)l.classList.add('active');});
+  document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
+  </script></body></html>
+  

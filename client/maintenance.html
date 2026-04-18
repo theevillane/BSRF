@@ -22,15 +22,30 @@
       </button>
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html">Home</a></li>
-        <li><a href="terminals.html">Terminals</a></li>
-        <li><a href="fleet.html">Fleet</a></li>
-        <li><a href="members.html">Members</a></li>
-        <li><a href="rentals.html">Rentals</a></li>
-        <li><a href="maintenance.html">Maintenance</a></li>
-        <li><a href="sponsors.html">Sponsors</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li class="dropdown">
+          <a href="#">Operations <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="rentals.html">Rentals</a></li>
+            <li><a href="fleet.html">Fleet</a></li>
+            <li><a href="terminals.html">Terminals</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">Management <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="members.html">Members</a></li>
+            <li><a href="maintenance.html">Maintenance</a></li>
+            <li><a href="reports.html">Reports</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">System <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="sponsors.html">Sponsors</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
 
@@ -385,7 +400,15 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
         await loadAll();
-        document.querySelectorAll('.nav-links a').forEach(a => { if (a.href === window.location.href) a.classList.add('active'); });
+        document.querySelectorAll('.dropdown > a').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (window.innerWidth < 768) { e.preventDefault(); el.parentElement.classList.toggle('open'); }
+          });
+        });
+        document.querySelectorAll('.nav-links a[href]').forEach((a) => {
+          const h = a.getAttribute('href');
+          if (h && h !== '#' && a.href === window.location.href) a.classList.add('active');
+        });
         document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
       });
     </script>
