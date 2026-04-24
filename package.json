@@ -1,0 +1,32 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "main": "server.cjs",
+    "scripts": {
+      "start": "node server.cjs",
+      "setup": "node do-not-edit/setup-db.js",
+      "cleanup": "node do-not-edit/cleanup-db.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+      "body-parser": "^1.20.4",
+      "cors": "^2.8.6",
+      "express": "^4.22.1",
+      "pg": "^8.20.0"
+    },
+    "type": "module",
+    "devDependencies": {
+      "eslint": "^8.57.1",
+      "eslint-config-portsoc": "^1.0.1"
+    },
+    "eslintConfig": {
+      "extends": "portsoc",
+      "root": true,
+      "env": {
+        "browser": true
+      }
+    }
+  }
+  
